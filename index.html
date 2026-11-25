@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>منظومة مصنع فرنسا</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Reem+Kufi:wght@700&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: fixed right sidebar with logo and grouped categories (RTL); bottom tab bar on phones. */
+:root{
+  --bg:#F1F3F7; --surface:#FFFFFF; --surface2:#F7F8FB; --ink:#14213D; --muted:#5C667A; --line:#DDE2EB;
+  --navy:#14213D; --accent:#C8412B; --accent-ink:#FFFFFF;
+  --good:#1B8A57; --good-bg:#E3F4EB; --bad:#C0262D; --bad-bg:#FBE7E8; --warn:#A8690B; --warn-bg:#FBF0DA;
+  --bar1:#14213D; --bar2:#C8412B;
+  --font:'Cairo',system-ui,-apple-system,'Segoe UI',Tahoma,sans-serif; --display:'Reem Kufi','Cairo',sans-serif;
+  --shadow:0 1px 2px rgba(20,33,61,.06),0 4px 14px rgba(20,33,61,.05);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0E1422; --surface:#161E31; --surface2:#1B2540; --ink:#E8ECF5; --muted:#9AA5BC; --line:#27324D;
+    --navy:#0B1020; --accent:#E2634D; --good:#43C98A; --good-bg:#12332A; --bad:#FF7F86; --bad-bg:#3A1A20; --warn:#E8B04F; --warn-bg:#3A2D12;
+    --bar1:#7C95D6; --bar2:#E2634D; --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0E1422; --surface:#161E31; --surface2:#1B2540; --ink:#E8ECF5; --muted:#9AA5BC; --line:#27324D;
+  --navy:#0B1020; --accent:#E2634D; --good:#43C98A; --good-bg:#12332A; --bad:#FF7F86; --bad-bg:#3A1A20; --warn:#E8B04F; --warn-bg:#3A2D12;
+  --bar1:#7C95D6; --bar2:#E2634D; --shadow:none;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.55;-webkit-text-size-adjust:100%}
+h1,h2,h3,h4{margin:0;text-wrap:balance}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.num{font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate;display:inline-block}
+
+.app{display:grid;grid-template-columns:260px minmax(0,1fr);min-height:100vh}
+.side{background:var(--navy);color:#E8ECF5;padding:20px 14px;position:sticky;top:0;height:100vh;overflow:auto;display:flex;flex-direction:column;gap:18px}
+.brand{display:flex;align-items:center;gap:12px;padding:4px 6px 16px;border-bottom:1px solid rgba(255,255,255,.14)}
+.brand svg{width:54px;height:54px;flex:none}
+.brand .t1{font-family:var(--display);font-size:24px;line-height:1.1;font-weight:700;color:#fff}
+.brand .t2{font-size:11.5px;color:#AEB9D3;margin-top:3px;letter-spacing:.2px}
+.brand .rule{height:3px;width:34px;background:var(--accent);border-radius:2px;margin-top:6px}
+.navgroup{display:flex;flex-direction:column;gap:2px}
+.navgroup h4{font-size:11.5px;font-weight:600;color:#8E9BBA;padding:0 10px 6px;letter-spacing:.3px}
+.nav{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;color:#D6DCEC;text-decoration:none;background:none;border:0;width:100%;text-align:start;cursor:pointer;font-weight:600}
+.nav svg{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nav:hover{background:rgba(255,255,255,.07)}
+.nav[aria-current="page"]{background:#fff;color:var(--navy)}
+.sync{margin-top:auto;font-size:12px;color:#AEB9D3;display:flex;gap:8px;align-items:flex-start;padding:10px;border-radius:10px;background:rgba(255,255,255,.06)}
+.dot{width:9px;height:9px;border-radius:50%;background:#8E9BBA;margin-top:6px;flex:none}
+.dot.on{background:#4ADE9A}.dot.off{background:#F5B94D}
+
+.main{padding:22px 26px 40px;min-width:0}
+.top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.top h1{font-size:24px;font-weight:800;flex:1;min-width:160px}
+.top .sub{color:var(--muted);font-size:13px;width:100%;margin-top:-6px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{border:1px solid var(--line);background:var(--surface);padding:9px 15px;border-radius:10px;cursor:pointer;font-weight:700;min-height:42px;display:inline-flex;align-items:center;gap:8px}
+.btn:hover{border-color:var(--ink)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.07)}
+.btn.dark{background:var(--navy);border-color:var(--navy);color:#fff}
+.btn.danger{color:var(--bad);border-color:var(--bad)}
+.btn.sm{min-height:34px;padding:5px 11px;font-size:13px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+select,input,textarea{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:9px 11px;min-height:42px;width:100%}
+textarea{min-height:90px;resize:vertical}
+.top select{width:auto;min-width:150px}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:var(--shadow);min-width:0}
+.card>h3{font-size:16px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.card>h3 .hint{font-weight:500;color:var(--muted);font-size:12.5px}
+.grid{display:grid;gap:14px}
+.kpis{grid-template-columns:repeat(auto-fit,minmax(170px,1fr));margin-bottom:14px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow);border-inline-start:5px solid var(--navy)}
+.kpi .l{color:var(--muted);font-size:13px;font-weight:600}
+.kpi .v{font-size:25px;font-weight:800;margin-top:2px;line-height:1.25}
+.kpi .s{font-size:12px;color:var(--muted)}
+.kpi.good{border-inline-start-color:var(--good)} .kpi.good .v{color:var(--good)}
+.kpi.bad{border-inline-start-color:var(--bad)} .kpi.bad .v{color:var(--bad)}
+.kpi.acc{border-inline-start-color:var(--accent)}
+.cols2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+.cols3{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;min-width:640px;background:var(--surface)}
+th,td{padding:10px 12px;text-align:start;border-bottom:1px solid var(--line);white-space:nowrap}
+th{background:var(--surface2);font-size:12.5px;color:var(--muted);font-weight:700;position:sticky;top:0}
+tr:last-child td{border-bottom:0}
+tbody tr.click{cursor:pointer}
+tbody tr.click:hover td{background:var(--surface2)}
+td.r,th.r{text-align:end}
+tfoot td{font-weight:800;background:var(--surface2)}
+.badge{display:inline-block;padding:2px 10px;border-radius:99px;font-size:12px;font-weight:700}
+.b-good{background:var(--good-bg);color:var(--good)} .b-bad{background:var(--bad-bg);color:var(--bad)} .b-warn{background:var(--warn-bg);color:var(--warn)} .b-mute{background:var(--surface2);color:var(--muted);border:1px solid var(--line)}
+.pos{color:var(--good);font-weight:700}.neg{color:var(--bad);font-weight:700}.mut{color:var(--muted)}
+
+.empty{text-align:center;padding:34px 16px;display:grid;gap:12px;justify-items:center}
+.empty h3{font-size:20px}.empty p{color:var(--muted);max-width:460px;margin:0}
+
+.bars{display:grid;gap:9px}
+.bar{display:grid;grid-template-columns:minmax(90px,150px) 1fr auto;gap:10px;align-items:center;font-size:13.5px}
+.bar .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar .tr{height:12px;background:var(--surface2);border-radius:99px;overflow:hidden;border:1px solid var(--line)}
+.bar .fl{height:100%;border-radius:99px;background:var(--bar1)}
+.bar .fl.neg{background:var(--bad)} .bar .fl.pos{background:var(--good)} .bar .fl.acc{background:var(--bar2)}
+.chartwrap{overflow-x:auto}
+.chartwrap svg{min-width:520px;width:100%;height:auto;display:block}
+.legend{display:flex;gap:16px;font-size:12.5px;color:var(--muted);margin-top:8px;flex-wrap:wrap}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-inline-end:6px;vertical-align:-1px}
+
+.overlay{position:fixed;inset:0;background:rgba(10,16,32,.55);display:flex;align-items:center;justify-content:center;padding:14px;z-index:50;overflow:auto}
+.modal{background:var(--surface);border-radius:16px;width:min(760px,100%);max-height:calc(100% - 8px);overflow:auto;padding:20px;border:1px solid var(--line)}
+.modal h2{font-size:19px;margin-bottom:14px;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.x{border:0;background:var(--surface2);width:36px;height:36px;border-radius:10px;cursor:pointer;font-size:20px;line-height:1;flex:none}
+.form{display:grid;gap:12px}
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+label.f{display:grid;gap:5px;font-size:13px;font-weight:700;color:var(--muted)}
+.oprow{display:grid;grid-template-columns:1fr 130px 40px;gap:8px;margin-bottom:8px}
+.prev{background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;gap:6px}
+.prev .ln{display:flex;justify-content:space-between;gap:10px}
+.prev .ln.big{font-weight:800;font-size:16px;border-top:1px dashed var(--line);padding-top:8px;margin-top:2px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-start;margin-top:4px}
+.note{background:var(--warn-bg);color:var(--warn);border-radius:10px;padding:10px 12px;font-size:13px}
+.info{background:var(--surface2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13px;color:var(--muted)}
+.steps{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.step{padding:5px 12px;border-radius:99px;background:var(--surface2);border:1px solid var(--line);font-size:12.5px;font-weight:700;color:var(--muted)}
+.step.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.drop{border:2px dashed var(--line);border-radius:14px;padding:26px;text-align:center;display:grid;gap:10px;justify-items:center;background:var(--surface2)}
+.drop.over{border-color:var(--accent)}
+.toast{position:fixed;bottom:84px;inset-inline:0;margin-inline:auto;width:max-content;max-width:90%;background:var(--navy);color:#fff;padding:11px 18px;border-radius:12px;z-index:80;font-weight:700;box-shadow:0 6px 24px rgba(0,0,0,.25)}
+.prog{height:10px;background:var(--surface2);border-radius:99px;overflow:hidden;border:1px solid var(--line)}
+.prog i{display:block;height:100%;background:var(--accent);width:0;transition:width .15s}
+
+.bottom{display:none}
+@media (max-width:860px){
+  .app{grid-template-columns:1fr}
+  .side{position:static;height:auto;flex-direction:row;align-items:center;padding:10px 14px;gap:10px}
+  .side .navgroup,.side .sync{display:none}
+  .brand{border:0;padding:0}
+  .brand svg{width:42px;height:42px}.brand .t1{font-size:20px}
+  .main{padding:14px 14px 96px}
+  .bottom{display:grid;grid-template-columns:repeat(7,1fr);position:fixed;inset-inline:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);z-index:40;padding:4px 2px calc(4px + env(safe-area-inset-bottom))}
+  .bottom button{background:none;border:0;display:grid;gap:2px;justify-items:center;padding:6px 0;font-size:10.5px;font-weight:700;color:var(--muted);cursor:pointer;min-width:0}
+  .bottom svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .bottom button[aria-current="page"]{color:var(--accent)}
+  .g2,.g3{grid-template-columns:1fr}
+  .oprow{grid-template-columns:1fr 100px 40px}
+  .top h1{font-size:21px}
+  .bar{grid-template-columns:90px 1fr auto}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+</style>
+</head>
+<body>
+<div id="root"></div>
+<noscript>الصفحة دي محتاجة JavaScript.</noscript>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+'use strict';
+(function () {
+  // ---------------------------------------------------------------- helpers
+  const $ = (s, r) => (r || document).querySelector(s);
+  const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const nf = new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 });
+  const r2 = (n) => Math.round((Number(n) || 0) * 100) / 100;
+  const fmt = (n) => nf.format(r2(n));
+  const num = (n) => '<span class="num">' + fmt(n) + '</span>';
+  const signed = (n) => '<span class="num ' + (n > 0.004 ? 'pos' : n < -0.004 ? 'neg' : 'mut') + '">' + (n > 0.004 ? '+' : '') + fmt(n) + '</span>';
+  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  const pad = (n) => String(n).padStart(2, '0');
+  const todayISO = () => { const d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); };
+  const fdate = (d) => (d ? String(d).split('-').reverse().join('/') : '');
+  const MONTHS = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+  const mlabel = (m) => { const p = String(m).split('-'); return p.length === 2 && MONTHS[+p[1] - 1] ? MONTHS[+p[1] - 1] + ' ' + p[0] : m; };
+  const normAr = (s) => String(s == null ? '' : s).toLowerCase().replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/[يى]/g, 'ي').replace(/[ً-ْ]/g, '').replace(/[\s_\-\/\.\(\)]+/g, '');
+  const arDigits = (s) => String(s).replace(/[٠-٩]/g, (d) => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[۰-۹]/g, (d) => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+
+  // ---------------------------------------------------------------- state
+  const S = { clients: [], orders: [], expenses: [], payments: [], fx: [], rates: {} };
+  const COLS = ['clients', 'orders', 'expenses', 'payments', 'fx'];
+  const F = { month: 'all', q: '' };
+  let route = 'dashboard';
+  let store = { mode: 'local', db: null, ready: false, error: '', fb: null, online: false };
+  const isRemote = () => store.mode === 'cloud' || store.mode === 'firebase';
+  const FB_KEY = 'francia-fb-v1';
+  const EXP_CATS = ['إيجار', 'كهرباء', 'مياه وغاز', 'مرتبات إدارية وثابتة', 'صيانة ماكينات', 'نقل وشحن', 'مستلزمات تشغيل', 'أخرى'];
+  const FX_LABEL = { buy: 'شراء عملة', receive: 'استلام من عميل', sell: 'بيع عملة', pay: 'دفع / تحويل' };
+  const FX_IN = ['buy', 'receive'];
+  const CURS = ['USD', 'EUR', 'SAR', 'AED', 'GBP'];
+
+  // ---------------------------------------------------------------- calculations
+  function computeAll(orders, expenses) {
+    const months = {};
+    const mk = (m) => months[m] || (months[m] = { pieces: 0, exp: 0, rev: 0, direct: 0, orders: 0, net: 0 });
+    const out = orders.map((o) => {
+      const done = +o.done || 0, rej = +o.rejected || 0;
+      const paid = Math.max(0, done - rej);
+      const labor = (o.ops || []).reduce((a, x) => a + (+x.rate || 0), 0);
+      const acc = +o.acc || 0, extra = +o.extra || 0;
+      const direct = done * (labor + acc) + extra;
+      const rev = paid * (+o.price || 0);
+      const m = String(o.date || '').slice(0, 7) || '0000-00';
+      const b = mk(m);
+      b.pieces += done; b.rev += rev; b.direct += direct; b.orders++;
+      return Object.assign({}, o, { m, done, rej, paid, labor, acc, extra, direct, rev });
+    });
+    for (const e of expenses) mk(String(e.date || '').slice(0, 7) || '0000-00').exp += +e.amount || 0;
+    for (const o of out) {
+      const b = months[o.m];
+      const ohpp = b.pieces > 0 ? b.exp / b.pieces : 0;
+      o.ohpp = ohpp; o.oh = o.done * ohpp; o.total = o.direct + o.oh; o.profit = o.rev - o.total;
+      o.cpp = o.done ? o.total / o.done : 0; o.ppp = o.done ? o.profit / o.done : 0; o.be = o.paid ? o.total / o.paid : 0;
+    }
+    for (const m in months) months[m].net = months[m].rev - months[m].direct - months[m].exp;
+    return { orders: out, months };
+  }
+
+  function computeFx(list, rates) {
+    const cur = {}; const rows = [];
+    const sorted = list.slice().sort((a, b) => String(a.date || '').localeCompare(String(b.date || '')) || (a.ts || 0) - (b.ts || 0));
+    for (const t of sorted) {
+      const c = String(t.cur || 'USD').toUpperCase();
+      const x = cur[c] || (cur[c] = { cur: c, bal: 0, costEgp: 0, realized: 0, inAmt: 0, outAmt: 0 });
+      const amt = +t.amount || 0, rate = +t.rate || 0;
+      let gain = 0;
+      if (FX_IN.indexOf(t.type) >= 0) { x.bal += amt; x.costEgp += amt * rate; x.inAmt += amt; }
+      else {
+        const avg = x.bal > 0 ? x.costEgp / x.bal : rate;
+        gain = (rate - avg) * amt; x.realized += gain; x.costEgp -= avg * amt; x.bal -= amt; x.outAmt += amt;
+        if (x.bal <= 1e-9) x.costEgp = 0;
+      }
+      rows.push(Object.assign({}, t, { cur: c, balAfter: x.bal, gain }));
+    }
+    const list2 = Object.keys(cur).map((c) => {
+      const x = cur[c]; const avg = x.bal > 0 ? x.costEgp / x.bal : 0; const rate = +(rates || {})[c] || 0;
+      return Object.assign({}, x, { avg, rate, value: rate ? x.bal * rate : 0, unreal: rate ? x.bal * rate - x.costEgp : 0 });
+    });
+    return { list: list2, rows: rows.reverse() };
+  }
+
+  function clientStats(C) {
+    const map = {};
+    for (const c of S.clients) map[c.id] = { c, orders: 0, pieces: 0, rev: 0, paid: 0, profit: 0 };
+    for (const o of C.orders) { const x = map[o.client]; if (x) { x.orders++; x.pieces += o.done; x.rev += o.rev; x.profit += o.profit; } }
+    for (const p of S.payments) { const x = map[p.client]; if (x) x.paid += +p.amount || 0; }
+    return Object.keys(map).map((k) => Object.assign(map[k], { bal: map[k].rev - map[k].paid }));
+  }
+
+  // ---------------------------------------------------------------- storage (shared db when available, device otherwise)
+  const LS_KEY = 'francia-system-v1';
+  function loadLocal() {
+    try { const j = JSON.parse(localStorage.getItem(LS_KEY) || 'null'); if (j) COLS.forEach((c) => { S[c] = Array.isArray(j[c]) ? j[c] : []; }); if (j && j.rates) S.rates = j.rates; } catch (e) { /* no storage */ }
+  }
+  function saveLocal() { try { localStorage.setItem(LS_KEY, JSON.stringify(S)); } catch (e) { /* no storage */ } }
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  async function retry(fn) {
+    let last;
+    for (let i = 0; i < 5; i++) {
+      try { return await fn(); } catch (e) {
+        last = e; const code = e && e.code;
+        if (code === 'resource_exhausted' || code === 'unavailable') await sleep(400 * (i + 1) + Math.random() * 300); else throw e;
+      }
+    }
+    throw last;
+  }
+  const clean = (o) => JSON.parse(JSON.stringify(o));
+  async function put(col, obj) {
+    if (!obj.id) obj.id = uid();
+    if (!obj.ts) obj.ts = Date.now();
+    if (store.mode === 'cloud') {
+      try { await retry(() => store.db.collection(col).doc(obj.id).set(clean(obj))); } catch (e) { handleWriteError(e); throw e; }
+    } else if (store.mode === 'firebase') {
+      try { await retry(() => fbWrite(col + '/' + obj.id, 'PUT', clean(obj))); } catch (e) { handleWriteError(e); throw e; }
+      fbApply('/' + col + '/' + obj.id, clean(obj), false); fbRebuild();
+    } else {
+      const i = S[col].findIndex((x) => x.id === obj.id);
+      if (i >= 0) S[col][i] = obj; else S[col].push(obj);
+      saveLocal(); render();
+    }
+    return obj;
+  }
+  async function del(col, id) {
+    if (store.mode === 'cloud') {
+      try { await retry(() => store.db.collection(col).doc(id).delete()); } catch (e) { handleWriteError(e); throw e; }
+    } else if (store.mode === 'firebase') {
+      try { await retry(() => fbWrite(col + '/' + id, 'DELETE')); } catch (e) { handleWriteError(e); throw e; }
+      fbApply('/' + col + '/' + id, null, false); fbRebuild();
+    } else { S[col] = S[col].filter((x) => x.id !== id); saveLocal(); render(); }
+  }
+  async function putRates() {
+    if (store.mode === 'cloud') { try { await retry(() => store.db.doc('settings/rates').set({ rates: clean(S.rates) })); } catch (e) { handleWriteError(e); } }
+    else if (store.mode === 'firebase') { try { await retry(() => fbWrite('rates', 'PUT', clean(S.rates))); } catch (e) { handleWriteError(e); } fbApply('/rates', clean(S.rates), false); }
+    else { saveLocal(); render(); }
+  }
+  function handleWriteError(e) {
+    const code = e && e.code;
+    if (code === 'fb_denied') toast('Firebase رفض الحفظ. راجع قواعد قاعدة البيانات (Rules) من الإعدادات.');
+    else if (code === 'invalid_argument') toast('مفيش صلاحية تعديل على الحساب ده. اطلب من صاحب الصفحة يدّيك صلاحية "Contributor" أو أعلى.');
+    else if (code === 'quota_exceeded') toast('قاعدة البيانات اتملت. امسح بيانات قديمة.');
+    else toast('حصلت مشكلة في الحفظ. جرّب تاني.');
+  }
+  const encCfg = (c) => btoa(unescape(encodeURIComponent(JSON.stringify({ u: c.url, k: c.key }))));
+  function readCfgFromHash() {
+    const m = /[#&]cfg=([^&]+)/.exec(location.hash || ''); if (!m) return null;
+    try {
+      const o = JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(m[1])))));
+      if (o && /^https:\/\/[^\s\/]+\.(firebaseio\.com|firebasedatabase\.app)$/.test(o.u) && String(o.k || '').length >= 12) return { url: o.u, key: o.k };
+    } catch (e) { /* bad link */ }
+    return null;
+  }
+  function shareLink() {
+    if (!store.fb) return '';
+    return location.href.split('#')[0] + '#cfg=' + encodeURIComponent(encCfg(store.fb));
+  }
+  async function initStore() {
+    loadLocal(); render();
+    const hc = readCfgFromHash();
+    if (hc) {
+      let saved = false; try { localStorage.setItem(FB_KEY, JSON.stringify(hc)); saved = true; } catch (e) { /* no storage */ }
+      if (saved) { try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { /* ignore */ } }
+      startFirebase(hc); toast('اتوصّلت بمنظومة المصنع تلقائي'); return;
+    }
+    let db = null;
+    try { if (window.claude && typeof window.claude.use === 'function') db = await window.claude.use('db'); } catch (e) { db = null; }
+    if (!db) {
+      store.ready = true;
+      try { const c = JSON.parse(localStorage.getItem(FB_KEY) || 'null'); if (c && c.url && c.key) { startFirebase(c); return; } } catch (e) { /* no storage */ }
+      render(); return;
+    }
+    store.db = db; store.mode = 'cloud'; store.ready = true;
+    const hear = (col) => db.collection(col).onSnapshot((snap) => {
+      S[col] = snap.docs.map((d) => Object.assign({}, d.data(), { id: d.id })); schedule();
+    }, (e) => { store.error = (e && e.code) || 'error'; schedule(); });
+    COLS.forEach(hear);
+    db.doc('settings/rates').onSnapshot((s) => { const d = s.exists ? s.data() : null; S.rates = (d && d.rates) || {}; schedule(); }, () => {});
+    render();
+  }
+  // ---------------------------------------------------------------- free sync through the user's own Firebase Realtime Database
+  let FBT = {}; let fbSource = null;
+  const fbBase = () => store.fb.url + '/f/' + encodeURIComponent(store.fb.key);
+  async function fbWrite(path, method, body) {
+    let r;
+    try { r = await fetch(fbBase() + '/' + path + '.json', { method, headers: { 'Content-Type': 'application/json' }, body: method === 'DELETE' ? undefined : JSON.stringify(body) }); }
+    catch (e) { const er = new Error('network'); er.code = 'unavailable'; throw er; }
+    if (r.status === 401 || r.status === 403) { const er = new Error('denied'); er.code = 'fb_denied'; throw er; }
+    if (!r.ok) { const er = new Error('http ' + r.status); er.code = 'unavailable'; throw er; }
+  }
+  function fbApply(path, data, merge) {
+    const parts = String(path).split('/').filter(Boolean);
+    if (!parts.length) {
+      if (!merge) { FBT = (data && typeof data === 'object') ? data : {}; return; }
+      Object.keys(data || {}).forEach((k) => { if (data[k] === null) delete FBT[k]; else FBT[k] = data[k]; }); return;
+    }
+    let node = FBT;
+    for (let i = 0; i < parts.length - 1; i++) { if (!node[parts[i]] || typeof node[parts[i]] !== 'object') node[parts[i]] = {}; node = node[parts[i]]; }
+    const last = parts[parts.length - 1];
+    if (data === null) { delete node[last]; return; }
+    if (merge && typeof data === 'object') { const cur = node[last] && typeof node[last] === 'object' ? node[last] : {}; Object.keys(data).forEach((k) => { if (data[k] === null) delete cur[k]; else cur[k] = data[k]; }); node[last] = cur; return; }
+    node[last] = data;
+  }
+  function fbRebuild() {
+    COLS.forEach((c) => { const m = FBT[c] || {}; S[c] = Object.keys(m).filter((id) => m[id] && typeof m[id] === 'object').map((id) => Object.assign({}, m[id], { id })); });
+    S.rates = (FBT.rates && typeof FBT.rates === 'object') ? FBT.rates : {};
+    schedule();
+  }
+  function startFirebase(cfg) {
+    stopFirebase();
+    store.fb = { url: String(cfg.url).replace(/\/+$/, ''), key: cfg.key }; store.mode = 'firebase'; store.ready = true; store.online = false; store.error = '';
+    COLS.forEach((c) => { S[c] = []; }); S.rates = {}; FBT = {};
+    try {
+      fbSource = new EventSource(fbBase() + '.json');
+      fbSource.onopen = () => { store.online = true; store.error = ''; schedule(); };
+      fbSource.onerror = () => { store.online = false; store.error = 'offline'; schedule(); };
+      const onMsg = (merge) => (ev) => { try { const m = JSON.parse(ev.data); if (!m) return; fbApply(m.path, m.data, merge); fbRebuild(); store.online = true; store.error = ''; } catch (e) { /* ignore */ } };
+      fbSource.addEventListener('put', onMsg(false)); fbSource.addEventListener('patch', onMsg(true));
+      fbSource.addEventListener('cancel', () => { store.error = 'fb_denied'; store.online = false; schedule(); });
+    } catch (e) { store.error = 'offline'; }
+    render();
+  }
+  function stopFirebase() { if (fbSource) { try { fbSource.close(); } catch (e) { /* ignore */ } fbSource = null; } }
+  async function connectFirebase(url, key) {
+    url = String(url || '').trim().replace(/\/+$/, ''); key = String(key || '').trim();
+    if (!/^https:\/\/[^\s\/]+\.(firebaseio\.com|firebasedatabase\.app)$/.test(url)) { toast('لينك قاعدة البيانات مش صحيح. لازم يبدأ بـ https وينتهي بـ firebaseio.com أو firebasedatabase.app'); return; }
+    if (key.length < 12) { toast('كلمة السر لازم تكون 12 حرف أو أكتر.'); return; }
+    try {
+      const r = await fetch(url + '/f/' + encodeURIComponent(key) + '/ping.json', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Date.now()) });
+      if (r.status === 401 || r.status === 403) { toast('Firebase رفض الاتصال. راجع القواعد (Rules) وتأكد إنك ضغطت Publish.'); return; }
+      if (!r.ok) { toast('الاتصال فشل (' + r.status + '). راجع اللينك.'); return; }
+    } catch (e) { toast('مقدرتش أوصل لـ Firebase. تأكد من النت واللينك، وإنك فاتح النسخة المحمّلة مش جوه Claude.'); return; }
+    try { localStorage.setItem(FB_KEY, JSON.stringify({ url, key })); } catch (e) { /* no storage */ }
+    startFirebase({ url, key }); toast('اتوصّل. الجهاز التاني يدخل نفس اللينك والكلمة ويشوف نفس البيانات.');
+  }
+  function disconnectFirebase() {
+    stopFirebase(); try { localStorage.removeItem(FB_KEY); } catch (e) { /* no storage */ }
+    store.mode = 'local'; store.fb = null; store.online = false; loadLocal(); render();
+  }
+  const FB_RULES = '{\n  "rules": {\n    ".read": false,\n    ".write": false,\n    "f": {\n      "$key": { ".read": true, ".write": true }\n    }\n  }\n}';
+  function fbCard() {
+    if (store.mode === 'cloud') return '';
+    const c = store.fb;
+    if (c) return '<div class="card" style="margin-top:14px"><h3>مزامنة Firebase <span class="badge ' + (store.online ? 'b-good' : 'b-warn') + '">' + (store.online ? 'متصل' : 'غير متصل') + '</span></h3><p class="mut" style="margin-top:0">متصل بقاعدة: <span class="num">' + esc(c.url) + '</span><br>نفس اللينك ونفس كلمة السر على الجهاز التاني بيخلّوه يشوف نفس البيانات لحظياً.</p><div class="row"><button class="btn primary" data-act="copyLink">نسخ رابط المشاركة لباباك</button><button class="btn danger" data-act="fbDisconnect">فصل المزامنة من الجهاز ده</button></div><p class="mut" style="font-size:12.5px;margin-bottom:0">الرابط ده بيفتح المنظومة عند أي حد ويتوصّل تلقائي من غير ما يكتب حاجة. لازم الصفحة تكون مرفوعة على استضافة (مش ملف على الجهاز)، وبلاش تبعته لغير باباك.</p></div>';
+    return '<div class="card" style="margin-top:14px"><h3>المزامنة التلقائية المجانية بين الأجهزة</h3><ol style="margin:0 0 12px;padding-inline-start:20px;display:grid;gap:6px"><li>ادخل <b dir="ltr">console.firebase.google.com</b> بحساب جوجل واضغط <b>Add project</b> (اقفل Google Analytics).</li><li>من القايمة: <b>Build ← Realtime Database ← Create Database</b>، اختار أقرب منطقة وابدأ بـ <b>Locked mode</b>.</li><li>تبويب <b>Rules</b>: امسح اللي فيه والصق القواعد دي واضغط <b>Publish</b>:<pre dir="ltr" style="background:var(--surface2);border:1px solid var(--line);border-radius:10px;padding:10px;overflow:auto;margin:6px 0;font-size:12.5px">' + esc(FB_RULES) + '</pre><button class="btn sm" type="button" data-act="copyRules">نسخ القواعد</button></li><li>تبويب <b>Data</b>: انسخ لينك القاعدة اللي فوق (بيبدأ بـ https).</li><li>الصقه تحت، واكتب كلمة سر طويلة (12 حرف أو أكتر). <b>نفس اللينك ونفس الكلمة على جهاز باباك.</b></li></ol><form class="form" data-form="fb"><label class="f">لينك قاعدة البيانات<input name="url" dir="ltr" placeholder="https://xxxx-default-rtdb.firebaseio.com" required></label><label class="f">كلمة سر المصنع (سرّية، متقولهاش لحد)<input name="key" dir="ltr" minlength="12" required></label><div class="actions"><button class="btn primary" type="submit">اتصال</button></div></form><p class="mut" style="font-size:12.5px;margin-bottom:0">الاتصال بيشتغل في النسخة المحمّلة (HTML) على جهازك، مش جوه صفحة Claude نفسها. لو كان فيه بيانات على الجهاز قبل الاتصال، ارفعها بزر "رفع بيانات الجهاز" بعد الاتصال.</p></div>';
+  }
+  async function pushLocalToCloud() {
+    let local = null; try { local = JSON.parse(localStorage.getItem(LS_KEY) || 'null'); } catch (e) { local = null; }
+    if (!local) { toast('مفيش بيانات محفوظة على الجهاز ده.'); return; }
+    let n = 0; const total = COLS.reduce((a, c) => a + (local[c] || []).length, 0);
+    for (const c of COLS) for (const o of (local[c] || [])) { await put(c, o); n++; progress(n, total); }
+    if (local.rates) { S.rates = local.rates; await putRates(); }
+    progress(0, 0); toast('اترفع ' + n + ' سجل.');
+  }
+
+  // ---------------------------------------------------------------- tiny UI infrastructure
+  let raf = 0;
+  function schedule() { if (!raf) raf = requestAnimationFrame(() => { raf = 0; render(); }); }
+  let toastTimer = 0;
+  function toast(msg) {
+    let t = $('#toast'); if (!t) { t = document.createElement('div'); t.id = 'toast'; t.className = 'toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); }
+    t.textContent = msg; clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.remove(); }, 4200);
+  }
+  function progress(n, total) {
+    const el = $('#progfill'); if (el) el.style.width = total ? Math.round((n / total) * 100) + '%' : '0';
+    const tx = $('#progtext'); if (tx) tx.textContent = total ? n + ' / ' + total : '';
+  }
+  function openModal(title, html) {
+    closeModal();
+    const o = document.createElement('div'); o.className = 'overlay'; o.id = 'ov';
+    o.innerHTML = '<div class="modal" role="dialog" aria-modal="true"><h2><span>' + esc(title) + '</span><button class="x" data-act="closeModal" aria-label="إغلاق">×</button></h2>' + html + '</div>';
+    o.addEventListener('mousedown', (e) => { if (e.target === o) closeModal(); });
+    document.body.appendChild(o);
+    const first = $('input:not([type=hidden]),select', o); if (first && window.innerWidth > 860) first.focus();
+  }
+  function closeModal() { const o = $('#ov'); if (o) o.remove(); }
+  function confirmBox(msg, onYes) {
+    openModal('تأكيد', '<p>' + esc(msg) + '</p><div class="actions"><button class="btn danger" id="cfYes">أيوه، امسح</button><button class="btn" data-act="closeModal">إلغاء</button></div>');
+    $('#cfYes').onclick = async () => { closeModal(); await onYes(); };
+  }
+
+  // ---------------------------------------------------------------- icons & logo
+  const IC = {
+    dashboard: '<path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+    orders: '<path d="M6 3h12v18H6z"/><path d="M9 8h6M9 12h6M9 16h4"/>',
+    clients: '<circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.4"/><path d="M17 14c2.2 0 4 1.8 4 4"/>',
+    expenses: '<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M16 15h2"/>',
+    currency: '<circle cx="12" cy="12" r="9"/><path d="M14.5 9.2c-.6-.8-1.5-1.2-2.5-1.2-1.4 0-2.5.8-2.5 2s1 1.7 2.5 2 2.5.8 2.5 2-1.1 2-2.5 2c-1 0-2-.4-2.5-1.2M12 6.5V8M12 16v1.5"/>',
+    import: '<path d="M12 16V4M7 9l5-5 5 5M4 20h16"/>',
+    config: '<circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/>'
+  };
+  const icon = (k) => '<svg viewBox="0 0 24 24" aria-hidden="true">' + IC[k] + '</svg>';
+  const LOGO = '<svg viewBox="0 0 64 64" role="img" aria-label="شعار مصنع فرنسا"><rect width="64" height="64" rx="16" fill="#fff"/><rect x="3" y="3" width="58" height="58" rx="13" fill="none" stroke="#C8412B" stroke-width="2"/><rect x="17" y="13" width="30" height="6" rx="2" fill="#14213D"/><rect x="17" y="45" width="30" height="6" rx="2" fill="#14213D"/><rect x="21" y="19" width="22" height="26" fill="#14213D"/><g stroke="#C8412B" stroke-width="2.6" stroke-linecap="round"><path d="M21 24h22M21 29h22M21 34h22M21 39h22"/></g><path d="M43 39c9 0 9-11 3-13" fill="none" stroke="#C8412B" stroke-width="2.6" stroke-linecap="round"/></svg>';
+  const NAV = [
+    { g: 'نظرة عامة', items: [['dashboard', 'الرئيسية والتحليل']] },
+    { g: 'الإنتاج', items: [['orders', 'الأوردرات وتكلفة القطعة']] },
+    { g: 'الحسابات', items: [['clients', 'العملاء والدفعات'], ['expenses', 'مصاريف المصنع'], ['currency', 'حسابات العملة']] },
+    { g: 'البيانات', items: [['import', 'استيراد من Excel'], ['config', 'الإعدادات والنسخ الاحتياطي']] }
+  ];
+  const TITLES = { dashboard: 'الرئيسية والتحليل', orders: 'الأوردرات وتكلفة القطعة', clients: 'العملاء والدفعات', expenses: 'مصاريف المصنع', currency: 'حسابات العملة', import: 'استيراد من Excel', config: 'الإعدادات والنسخ الاحتياطي' };
+  const SHORT = { dashboard: 'الرئيسية', orders: 'الأوردرات', clients: 'العملاء', expenses: 'المصاريف', currency: 'العملة', import: 'Excel', config: 'الإعدادات' };
+
+  // ---------------------------------------------------------------- shell
+  function shell() {
+    const side = '<aside class="side"><div class="brand">' + LOGO + '<div><div class="t1">مصنع فرنسا</div><div class="t2">منظومة الإنتاج والحسابات</div><div class="rule"></div></div></div>' +
+      NAV.map((g) => '<nav class="navgroup" aria-label="' + esc(g.g) + '"><h4>' + esc(g.g) + '</h4>' + g.items.map((i) => '<button class="nav" data-act="nav" data-r="' + i[0] + '"' + (route === i[0] ? ' aria-current="page"' : '') + '>' + icon(i[0]) + '<span>' + esc(i[1]) + '</span></button>').join('') + '</nav>').join('') +
+      '<div class="sync"><span class="dot ' + (store.mode === 'cloud' || (store.mode === 'firebase' && store.online) ? 'on' : 'off') + '"></span><span>' + (store.mode === 'cloud' ? 'متزامن: أي جهاز يدخل بنفس الحساب يشوف نفس البيانات.' : store.mode === 'firebase' ? (store.online ? 'متزامن تلقائي مع باقي الأجهزة (Firebase).' : 'Firebase غير متصل. جاري إعادة المحاولة...') : 'البيانات محفوظة على الجهاز ده بس. شارك الصفحة عشان تتزامن.') + '</span></div></aside>';
+    const bottom = '<div class="bottom">' + ['dashboard', 'orders', 'clients', 'expenses', 'currency', 'import', 'config'].map((r) => '<button data-act="nav" data-r="' + r + '"' + (route === r ? ' aria-current="page"' : '') + '>' + icon(r) + '<span>' + esc(SHORT[r]) + '</span></button>').join('') + '</div>';
+    return '<div class="app">' + side + '<main class="main" id="main"></main></div>' + bottom;
+  }
+
+  function monthOptions() {
+    const set = {};
+    S.orders.forEach((o) => { if (o.date) set[String(o.date).slice(0, 7)] = 1; });
+    S.expenses.forEach((o) => { if (o.date) set[String(o.date).slice(0, 7)] = 1; });
+    const ms = Object.keys(set).sort().reverse();
+    if (F.month !== 'all' && ms.indexOf(F.month) < 0) F.month = 'all';
+    return '<select id="monthSel" aria-label="الشهر"><option value="all"' + (F.month === 'all' ? ' selected' : '') + '>كل الفترة</option>' + ms.map((m) => '<option value="' + m + '"' + (F.month === m ? ' selected' : '') + '>' + esc(mlabel(m)) + '</option>').join('') + '</select>';
+  }
+
+  function render() {
+    const active = document.activeElement;
+    if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA') && active.closest('#main') && active.id === 'qBox') { /* keep typing focus */ }
+    let root = $('#root');
+    if (!root.firstChild || root.dataset.route !== route || root.dataset.mode !== store.mode) {
+      root.innerHTML = shell(); root.dataset.route = route; root.dataset.mode = store.mode;
+    }
+    const main = $('#main');
+    const views = { dashboard: vDashboard, orders: vOrders, clients: vClients, expenses: vExpenses, currency: vCurrency, import: vImport, config: vConfig };
+    if (route === 'import' && IM.busy) return; // wizard owns its DOM while importing
+    main.innerHTML = (views[route] || vDashboard)();
+    const q = $('#qBox'); if (q && F.q && document.body.dataset.refocus === '1') { q.focus(); q.setSelectionRange(q.value.length, q.value.length); document.body.dataset.refocus = ''; }
+    if (route === 'import') afterImportRender();
+  }
+
+  function head(extra) {
+    return '<div class="top"><h1>' + esc(TITLES[route]) + '</h1>' + (extra || '') + '</div>';
+  }
+
+  // ---------------------------------------------------------------- dashboard
+  function emptyState() {
+    return head() + '<div class="card empty"><h3>ابدأ بإدخال بيانات المصنع</h3><p>ارفع ملف Excel الحالي وهيتقرأ ويتحلل، أو أضف أوردر يدوي، أو جرّب المنظومة ببيانات تجريبية تقدر تمسحها بضغطة.</p><div class="row" style="justify-content:center"><button class="btn primary" data-act="nav" data-r="import">رفع ملف Excel</button><button class="btn" data-act="newOrder">أوردر جديد</button><button class="btn" data-act="sample">بيانات تجريبية</button></div></div>';
+  }
+
+  function vDashboard() {
+    if (!S.orders.length && !S.expenses.length && !S.fx.length && !S.payments.length) return emptyState();
+    const C = computeAll(S.orders, S.expenses);
+    const allMonths = Object.keys(C.months).filter((m) => m !== '0000-00').sort();
+    const sel = F.month === 'all' ? Object.keys(C.months) : [F.month];
+    let rev = 0, direct = 0, exp = 0, pieces = 0, orders = 0;
+    sel.forEach((m) => { const b = C.months[m]; if (b) { rev += b.rev; direct += b.direct; exp += b.exp; pieces += b.pieces; orders += b.orders; } });
+    const net = rev - direct - exp;
+    const cpp = pieces ? (direct + exp) / pieces : 0; const ppp = pieces ? rev / pieces : 0;
+    const margin = rev ? (net / rev) * 100 : 0;
+    const inSel = (o) => F.month === 'all' || o.m === F.month;
+    const os = C.orders.filter((o) => inSel(o) && o.done > 0);
+    const best = os.slice().sort((a, b) => b.profit - a.profit).slice(0, 5);
+    const worst = os.filter((o) => o.profit < 0).sort((a, b) => a.profit - b.profit).slice(0, 5);
+    const cats = {}; S.expenses.filter((e) => F.month === 'all' || String(e.date || '').slice(0, 7) === F.month).forEach((e) => { const k = e.cat || 'أخرى'; cats[k] = (cats[k] || 0) + (+e.amount || 0); });
+    const catList = Object.keys(cats).map((k) => [k, cats[k]]).sort((a, b) => b[1] - a[1]);
+    const cs = clientStats(C).filter((x) => Math.abs(x.bal) > 0.5).sort((a, b) => b.bal - a.bal).slice(0, 6);
+    const fx = computeFx(S.fx, S.rates);
+
+    let h = head(monthOptions());
+    h += '<div class="grid kpis">' +
+      kpi('إيراد التصنيع', num(rev) + ' ج', '', pieces ? 'متوسط سعر القطعة ' + fmt(ppp) : '', 'acc') +
+      kpi('تكلفة التشغيل المباشرة', num(direct) + ' ج', '', 'أجور + إكسسوارات + مصاريف الأوردر', '') +
+      kpi('مصاريف المصنع', num(exp) + ' ج', '', 'إيجار وكهرباء ومرتبات...', '') +
+      kpi(net >= 0 ? 'صافي الربح' : 'صافي الخسارة', num(Math.abs(net)) + ' ج', net >= 0 ? 'good' : 'bad', 'هامش ' + fmt(margin) + '%') +
+      kpi('القطع المنتجة', num(pieces), '', orders + ' أوردر', '') +
+      kpi('تكلفة القطعة الكاملة', num(cpp) + ' ج', '', 'مباشر + مصاريف المصنع', '') + '</div>';
+
+    h += '<div class="grid cols2"><div class="card"><h3>الإيراد مقابل التكاليف شهرياً <span class="hint">آخر ١٢ شهر</span></h3>' + chart(C, allMonths.slice(-12)) + '</div>' +
+      '<div class="card"><h3>مصاريف المصنع حسب البند</h3>' + (catList.length ? '<div class="bars">' + catList.map((c) => bar(c[0], c[1], catList[0][1], 'acc', fmt(c[1]))).join('') + '</div>' : '<p class="mut">لسه مفيش مصاريف متسجلة. الأوردرات هتتحمّل مصاريف المصنع تلقائي بعد ما تضيفها.</p>') + '</div></div>';
+
+    h += '<div class="grid cols2" style="margin-top:14px"><div class="card"><h3>أعلى الأوردرات ربحاً <span class="hint">بإجمالي الربح</span></h3>' +
+      (best.length ? '<div class="bars">' + best.map((o) => bar(label(o), Math.abs(o.profit), Math.max.apply(null, best.map((x) => Math.abs(x.profit))) || 1, o.profit < 0 ? 'neg' : 'pos', fmt(o.profit))).join('') + '</div>' : '<p class="mut">مفيش أوردرات مسلّمة في الفترة دي.</p>') + '</div>' +
+      '<div class="card"><h3>أوردرات بتخسر <span class="hint">محتاجة مراجعة سعر</span></h3>' +
+      (worst.length ? '<div class="bars">' + worst.map((o) => bar(label(o), Math.abs(o.profit), Math.abs(worst[0].profit) || 1, 'neg', fmt(o.profit))).join('') + '</div><p class="mut" style="margin:10px 0 0">سعر التعادل = أقل سعر قطعة يغطي التكلفة. افتح الأوردر وشوفه.</p>' : '<p class="pos" style="margin:0">مفيش أوردر خسران في الفترة دي.</p>') + '</div></div>';
+
+    h += '<div class="grid cols2" style="margin-top:14px"><div class="card"><h3>مستحقات العملاء <span class="hint">المتبقي عليهم</span></h3>' +
+      (cs.length ? '<div class="bars">' + cs.map((x) => bar(x.c.name, Math.abs(x.bal), Math.max.apply(null, cs.map((y) => Math.abs(y.bal))) || 1, x.bal > 0 ? 'acc' : 'pos', fmt(x.bal))).join('') + '</div>' : '<p class="mut">مفيش أرصدة مفتوحة.</p>') + '</div>' +
+      '<div class="card"><h3>أرصدة العملة</h3>' + (fx.list.length ? '<div class="tw"><table style="min-width:420px"><thead><tr><th>العملة</th><th class="r">الرصيد</th><th class="r">متوسط التكلفة</th><th class="r">ربح/خسارة الصرف</th></tr></thead><tbody>' + fx.list.map((x) => '<tr><td><b>' + esc(x.cur) + '</b></td><td class="r">' + num(x.bal) + '</td><td class="r">' + num(x.avg) + '</td><td class="r">' + signed(x.realized) + '</td></tr>').join('') + '</tbody></table></div>' : '<p class="mut">مفيش حركات عملة. ضيفها من قسم "حسابات العملة".</p>') + '</div></div>';
+    return h;
+  }
+  const label = (o) => (clientName(o.client) ? clientName(o.client) + ' - ' : '') + (o.model || 'بدون موديل');
+  function kpi(l, v, cls, s, extra) { return '<div class="kpi ' + (cls || '') + ' ' + (extra || '') + '"><div class="l">' + esc(l) + '</div><div class="v">' + v + '</div>' + (s ? '<div class="s">' + esc(s) + '</div>' : '') + '</div>'; }
+  function bar(name, v, max, cls, txt) { const w = max ? Math.max(2, Math.min(100, (v / max) * 100)) : 0; return '<div class="bar"><span class="nm" title="' + esc(name) + '">' + esc(name) + '</span><div class="tr"><div class="fl ' + (cls || '') + '" style="width:' + w + '%"></div></div><span class="num">' + esc(txt) + '</span></div>'; }
+  function chart(C, ms) {
+    if (!ms.length) return '<p class="mut">مفيش بيانات شهرية لسه.</p>';
+    const W = 640, H = 240, padB = 44, padT = 12, n = ms.length; const gw = (W - 16) / n; const bw = Math.min(26, gw / 3);
+    const vals = ms.map((m) => C.months[m]); const mx = Math.max.apply(null, vals.map((b) => Math.max(b.rev, b.direct + b.exp, 1)));
+    const y = (v) => padT + (H - padB - padT) * (1 - v / mx);
+    let s = '<div class="chartwrap"><svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="رسم شهري للإيراد والتكاليف">';
+    for (let i = 0; i <= 3; i++) { const yy = padT + ((H - padB - padT) * i) / 3; s += '<line x1="8" x2="' + (W - 8) + '" y1="' + yy + '" y2="' + yy + '" stroke="var(--line)" stroke-width="1"/>'; }
+    ms.forEach((m, i) => {
+      const b = C.months[m]; const cx = 8 + gw * i + gw / 2; const cost = b.direct + b.exp;
+      s += '<rect x="' + (cx - bw - 1) + '" y="' + y(b.rev) + '" width="' + bw + '" height="' + Math.max(1, H - padB - y(b.rev)) + '" rx="3" fill="var(--bar1)"/>';
+      s += '<rect x="' + (cx + 1) + '" y="' + y(cost) + '" width="' + bw + '" height="' + Math.max(1, H - padB - y(cost)) + '" rx="3" fill="var(--bar2)"/>';
+      s += '<text x="' + cx + '" y="' + (H - 26) + '" text-anchor="middle" font-size="11" fill="var(--muted)">' + esc(m.slice(5) + '/' + m.slice(2, 4)) + '</text>';
+      s += '<text x="' + cx + '" y="' + (H - 10) + '" text-anchor="middle" font-size="11" font-weight="700" fill="' + (b.net >= 0 ? 'var(--good)' : 'var(--bad)') + '">' + (b.net >= 0 ? '+' : '') + esc(shortNum(b.net)) + '</text>';
+    });
+    s += '</svg></div><div class="legend"><span><i style="background:var(--bar1)"></i>الإيراد</span><span><i style="background:var(--bar2)"></i>التكاليف (مباشرة + مصنع)</span><span>الرقم تحت الشهر = صافي الربح/الخسارة</span></div>';
+    return s;
+  }
+  function shortNum(n) { const a = Math.abs(n); if (a >= 1e6) return r2(n / 1e6) + 'M'; if (a >= 1e3) return r2(n / 1e3) + 'K'; return String(Math.round(n)); }
+  const clientName = (id) => { const c = S.clients.find((x) => x.id === id); return c ? c.name : ''; };
+
+  // ---------------------------------------------------------------- orders
+  function statusBadge(o) {
+    const q = +o.qty || 0, d = +o.done || 0;
+    if (d <= 0) return '<span class="badge b-mute">جاري</span>';
+    if (q && d < q) return '<span class="badge b-warn">تسليم جزئي</span>';
+    return '<span class="badge b-good">مسلّم</span>';
+  }
+  function filteredOrders(C) {
+    const q = normAr(F.q);
+    return C.orders.filter((o) => (F.month === 'all' || o.m === F.month) && (!q || normAr((o.model || '') + clientName(o.client) + (o.notes || '')).indexOf(q) >= 0)).sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
+  }
+  function vOrders() {
+    const C = computeAll(S.orders, S.expenses);
+    const list = filteredOrders(C);
+    let h = head(monthOptions() + '<button class="btn primary" data-act="newOrder">+ أوردر جديد</button>');
+    h += '<div class="row" style="margin-bottom:12px"><input id="qBox" type="search" placeholder="ابحث بالموديل أو العميل" value="' + esc(F.q) + '" style="max-width:320px"><button class="btn sm" data-act="copyOrders">نسخ الجدول للـ Excel</button></div>';
+    if (!list.length) return h + '<div class="card empty"><h3>لا توجد أوردرات</h3><p>أضف أوردر جديد أو استورد ملف Excel. التكلفة والربح بيتحسبوا تلقائي.</p><button class="btn primary" data-act="newOrder">+ أوردر جديد</button></div>';
+    let tp = 0, tr = 0, tt = 0, tpf = 0;
+    const rows = list.map((o) => { tp += o.done; tr += o.rev; tt += o.total; tpf += o.profit; return '<tr class="click" data-act="viewOrder" data-id="' + esc(o.id) + '"><td>' + fdate(o.date) + '</td><td>' + esc(clientName(o.client) || '-') + '</td><td>' + esc(o.model || '-') + '</td><td class="r">' + num(o.done) + (o.qty ? '<span class="mut"> / ' + fmt(o.qty) + '</span>' : '') + '</td><td class="r">' + num(o.price) + '</td><td class="r">' + num(o.cpp) + '</td><td class="r">' + signed(o.ppp) + '</td><td class="r">' + signed(o.profit) + '</td><td>' + statusBadge(o) + '</td></tr>'; }).join('');
+    h += '<div class="tw"><table><thead><tr><th>التاريخ</th><th>العميل</th><th>الموديل</th><th class="r">المسلّم / المطلوب</th><th class="r">سعر القطعة</th><th class="r">تكلفة القطعة</th><th class="r">ربح القطعة</th><th class="r">إجمالي الربح</th><th>الحالة</th></tr></thead><tbody>' + rows + '</tbody><tfoot><tr><td colspan="3">الإجمالي (' + list.length + ' أوردر)</td><td class="r">' + num(tp) + '</td><td></td><td class="r">' + (tp ? num(tt / tp) : '') + '</td><td></td><td class="r">' + signed(tpf) + '</td><td></td></tr></tfoot></table></div>';
+    h += '<p class="mut" style="font-size:12.5px">تكلفة القطعة = تشغيل + إكسسوارات + نصيبها من مصاريف المصنع في نفس الشهر (مصاريف الشهر ÷ إجمالي قطع الشهر).</p>';
+    return h;
+  }
+
+  function orderFromForm(f) {
+    const g = (n) => (f.elements[n] ? f.elements[n].value : '');
+    const names = $$('input[name=opn]', f).map((x) => x.value.trim()); const rates = $$('input[name=opr]', f).map((x) => parseFloat(x.value) || 0);
+    const ops = names.map((n, i) => ({ name: n || 'مرحلة', rate: rates[i] })).filter((x, i) => names[i] || rates[i]);
+    return { id: g('id') || '', date: g('date') || todayISO(), clientName: g('client').trim(), model: g('model').trim(), qty: parseFloat(g('qty')) || 0, done: parseFloat(g('done')) || 0, rejected: parseFloat(g('rejected')) || 0, price: parseFloat(g('price')) || 0, ops, acc: parseFloat(g('acc')) || 0, extra: parseFloat(g('extra')) || 0, notes: g('notes').trim() };
+  }
+  function opRow(n, r) { return '<div class="oprow"><input name="opn" placeholder="المرحلة (قص، خياطة...)" value="' + esc(n || '') + '"><input name="opr" type="number" step="any" min="0" inputmode="decimal" placeholder="أجر القطعة" value="' + esc(r == null ? '' : r) + '"><button type="button" class="x" data-act="rmOp" aria-label="حذف المرحلة">×</button></div>'; }
+  function orderForm(o) {
+    o = o || {}; const ops = (o.ops && o.ops.length) ? o.ops : [{ name: 'قص' }, { name: 'خياطة' }, { name: 'كي' }, { name: 'تغليف' }];
+    const v = (k, d) => esc(o[k] == null || o[k] === 0 ? (d == null ? '' : d) : o[k]);
+    openModal(o.id ? 'تعديل أوردر' : 'أوردر جديد', '<form class="form" data-form="order"><input type="hidden" name="id" value="' + esc(o.id || '') + '">' +
+      '<div class="g2"><label class="f">التاريخ<input type="date" name="date" value="' + esc(o.date || todayISO()) + '" required></label>' +
+      '<label class="f">العميل<input name="client" list="clientsList" placeholder="اكتب اسم العميل" value="' + esc(clientName(o.client)) + '" required><datalist id="clientsList">' + S.clients.map((c) => '<option value="' + esc(c.name) + '">').join('') + '</datalist></label></div>' +
+      '<div class="g2"><label class="f">الموديل / الصنف<input name="model" value="' + v('model') + '" placeholder="مثال: تيشرت بولو"></label><label class="f">سعر تصنيع القطعة (ج)<input name="price" type="number" step="any" min="0" inputmode="decimal" value="' + v('price') + '" required></label></div>' +
+      '<div class="g3"><label class="f">الكمية المطلوبة<input name="qty" type="number" step="any" min="0" inputmode="decimal" value="' + v('qty') + '"></label><label class="f">الكمية المسلّمة<input name="done" type="number" step="any" min="0" inputmode="decimal" value="' + v('done') + '"></label><label class="f">مرفوض (مش هيتحاسب)<input name="rejected" type="number" step="any" min="0" inputmode="decimal" value="' + v('rejected') + '"></label></div>' +
+      '<div><b style="font-size:14px">مراحل التشغيل (أجر القطعة)</b><div id="opsRows" style="margin-top:8px">' + ops.map((x) => opRow(x.name, x.rate)).join('') + '</div><button type="button" class="btn sm" data-act="addOp">+ مرحلة</button></div>' +
+      '<div class="g2"><label class="f">إكسسوارات على المصنع للقطعة (ج)<input name="acc" type="number" step="any" min="0" inputmode="decimal" value="' + v('acc') + '"></label><label class="f">مصاريف إضافية للأوردر كله (نقل، غسيل...)<input name="extra" type="number" step="any" min="0" inputmode="decimal" value="' + v('extra') + '"></label></div>' +
+      '<label class="f">ملاحظات<input name="notes" value="' + v('notes') + '"></label><div class="prev" id="prev"></div>' +
+      '<div class="actions"><button class="btn primary" type="submit">حفظ</button><button class="btn" type="button" data-act="closeModal">إلغاء</button></div></form>');
+    updatePreview($('form[data-form=order]'));
+  }
+  function updatePreview(f) {
+    if (!f) return; const t = orderFromForm(f); const usedQty = !t.done && t.qty; const temp = { id: t.id || '__tmp', date: t.date, client: '', model: t.model, qty: t.qty, done: t.done || t.qty, rejected: t.rejected, price: t.price, ops: t.ops, acc: t.acc, extra: t.extra };
+    const others = S.orders.filter((x) => x.id !== t.id);
+    const C = computeAll(others.concat([temp]), S.expenses); const c = C.orders.find((x) => x.id === temp.id); const pv = $('#prev');
+    if (!c || !c.done) { pv.innerHTML = '<div class="mut">أدخل الكمية وأجور المراحل عشان تظهر تكلفة القطعة والربح.</div>'; return; }
+    pv.innerHTML = '<div class="ln"><span>تشغيل للقطعة</span>' + num(c.labor) + '</div><div class="ln"><span>إكسسوارات للقطعة</span>' + num(c.acc) + '</div><div class="ln"><span>مصاريف إضافية ÷ الكمية</span>' + num(c.done ? c.extra / c.done : 0) + '</div><div class="ln"><span>نصيب القطعة من مصاريف المصنع (' + esc(mlabel(c.m)) + ')</span>' + num(c.ohpp) + '</div>' +
+      '<div class="ln big"><span>تكلفة القطعة الكاملة</span>' + num(c.cpp) + ' ج</div><div class="ln"><span>سعر التصنيع</span>' + num(c.price) + ' ج</div><div class="ln big"><span>' + (c.ppp >= 0 ? 'ربح القطعة' : 'خسارة القطعة') + '</span>' + signed(c.ppp) + ' ج</div><div class="ln"><span>إجمالي الأوردر</span>' + signed(c.profit) + ' ج</div>' + (usedQty ? '<div class="mut" style="font-size:12px">الحساب على أساس الكمية المطلوبة لأن المسلّم لسه فاضي.</div>' : '');
+  }
+  async function findOrCreateClient(name) {
+    name = String(name || '').trim(); if (!name) return '';
+    const k = normAr(name); let c = S.clients.find((x) => normAr(x.name) === k);
+    if (!c) { c = { id: uid(), name }; await put('clients', c); if (isRemote()) S.clients.push(c); }
+    return c.id;
+  }
+  async function saveOrder(f) {
+    const t = orderFromForm(f); const cid = await findOrCreateClient(t.clientName);
+    const rec = { id: t.id || uid(), date: t.date, client: cid, model: t.model, qty: t.qty, done: t.done, rejected: t.rejected, price: t.price, ops: t.ops, acc: t.acc, extra: t.extra, notes: t.notes };
+    if (t.id) { const old = S.orders.find((x) => x.id === t.id); if (old && old.demo) rec.demo = true; }
+    await put('orders', rec); closeModal(); toast('اتحفظ الأوردر');
+  }
+  function viewOrder(id) {
+    const C = computeAll(S.orders, S.expenses); const o = C.orders.find((x) => x.id === id); if (!o) return;
+    const opsHtml = (o.ops || []).map((x) => '<div class="ln"><span>' + esc(x.name) + '</span>' + num(x.rate) + '</div>').join('');
+    openModal(label(o), '<div class="info" style="margin-bottom:12px">' + fdate(o.date) + ' • مسلّم ' + fmt(o.done) + (o.qty ? ' من ' + fmt(o.qty) : '') + (o.rej ? ' • مرفوض ' + fmt(o.rej) : '') + (o.notes ? ' • ' + esc(o.notes) : '') + '</div>' +
+      '<div class="prev"><b>تكلفة القطعة</b>' + opsHtml + '<div class="ln"><span>إكسسوارات</span>' + num(o.acc) + '</div><div class="ln"><span>مصاريف إضافية ÷ الكمية</span>' + num(o.done ? o.extra / o.done : 0) + '</div><div class="ln"><span>مصاريف المصنع (' + esc(mlabel(o.m)) + ')</span>' + num(o.ohpp) + '</div><div class="ln big"><span>تكلفة القطعة الكاملة</span>' + num(o.cpp) + ' ج</div><div class="ln"><span>سعر التصنيع</span>' + num(o.price) + ' ج</div><div class="ln big"><span>' + (o.ppp >= 0 ? 'ربح القطعة' : 'خسارة القطعة') + '</span>' + signed(o.ppp) + ' ج</div><div class="ln"><span>سعر التعادل (أقل سعر يغطي التكلفة)</span>' + num(o.be) + ' ج</div></div>' +
+      '<div class="grid kpis" style="margin:12px 0 0"><div class="kpi"><div class="l">الإيراد</div><div class="v">' + num(o.rev) + '</div></div><div class="kpi"><div class="l">إجمالي التكلفة</div><div class="v">' + num(o.total) + '</div></div><div class="kpi ' + (o.profit >= 0 ? 'good' : 'bad') + '"><div class="l">' + (o.profit >= 0 ? 'الربح' : 'الخسارة') + '</div><div class="v">' + num(Math.abs(o.profit)) + '</div></div></div>' +
+      '<div class="actions" style="margin-top:14px"><button class="btn primary" data-act="editOrder" data-id="' + esc(o.id) + '">تعديل</button><button class="btn danger" data-act="delOrder" data-id="' + esc(o.id) + '">حذف</button></div>');
+  }
+  function copyOrders() {
+    const C = computeAll(S.orders, S.expenses); const list = filteredOrders(C);
+    const rows = [['التاريخ', 'العميل', 'الموديل', 'المسلّم', 'سعر القطعة', 'تكلفة القطعة', 'ربح القطعة', 'إجمالي الربح'].join('\t')].concat(list.map((o) => [o.date, clientName(o.client), o.model, o.done, r2(o.price), r2(o.cpp), r2(o.ppp), r2(o.profit)].join('\t')));
+    copyText(rows.join('\n'), 'اتنسخ الجدول. الصقه في Excel.');
+  }
+  function copyText(t, msg) {
+    const done = () => toast(msg || 'اتنسخ');
+    try { navigator.clipboard.writeText(t).then(done, fallback); } catch (e) { fallback(); }
+    function fallback() { const ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); done(); } catch (e) { toast('النسخ مش متاح هنا. حدد النص وانسخه يدوي.'); } ta.remove(); }
+  }
+
+  // ---------------------------------------------------------------- clients
+  function vClients() {
+    const C = computeAll(S.orders, S.expenses); const cs = clientStats(C).sort((a, b) => b.bal - a.bal);
+    let h = head('<button class="btn" data-act="newPayment">+ تسجيل دفعة</button><button class="btn primary" data-act="newClient">+ عميل جديد</button>');
+    if (!cs.length) return h + '<div class="card empty"><h3>مفيش عملاء لسه</h3><p>العملاء بيتضافوا تلقائي مع أول أوردر، أو ضيفهم هنا.</p><button class="btn primary" data-act="newClient">+ عميل جديد</button></div>';
+    const tr = cs.reduce((a, x) => a + x.rev, 0), tp = cs.reduce((a, x) => a + x.paid, 0);
+    h += '<div class="grid kpis"><div class="kpi acc"><div class="l">إجمالي مستحقات التصنيع</div><div class="v">' + num(tr) + '</div></div><div class="kpi good"><div class="l">اللي اتحصّل</div><div class="v">' + num(tp) + '</div></div><div class="kpi ' + (tr - tp > 0 ? 'bad' : 'good') + '"><div class="l">المتبقي عند العملاء</div><div class="v">' + num(tr - tp) + '</div></div></div>';
+    h += '<div class="tw"><table><thead><tr><th>العميل</th><th>التليفون</th><th class="r">أوردرات</th><th class="r">قطع</th><th class="r">المستحق</th><th class="r">المدفوع</th><th class="r">المتبقي</th><th class="r">الربح</th><th></th></tr></thead><tbody>' +
+      cs.map((x) => '<tr><td><b>' + esc(x.c.name) + '</b></td><td>' + esc(x.c.phone || '') + '</td><td class="r">' + num(x.orders) + '</td><td class="r">' + num(x.pieces) + '</td><td class="r">' + num(x.rev) + '</td><td class="r">' + num(x.paid) + '</td><td class="r"><b class="' + (x.bal > 0.5 ? 'neg' : 'pos') + '"><span class="num">' + fmt(x.bal) + '</span></b></td><td class="r">' + signed(x.profit) + '</td><td><button class="btn sm" data-act="stmt" data-id="' + esc(x.c.id) + '">كشف حساب</button> <button class="btn sm" data-act="newPayment" data-id="' + esc(x.c.id) + '">دفعة</button></td></tr>').join('') + '</tbody></table></div>';
+    const ps = S.payments.slice().sort((a, b) => String(b.date || '').localeCompare(String(a.date || ''))).slice(0, 30);
+    h += '<div class="card" style="margin-top:14px"><h3>آخر الدفعات</h3>' + (ps.length ? '<div class="tw"><table style="min-width:480px"><thead><tr><th>التاريخ</th><th>العميل</th><th class="r">المبلغ</th><th>ملاحظة</th><th></th></tr></thead><tbody>' + ps.map((p) => '<tr><td>' + fdate(p.date) + '</td><td>' + esc(clientName(p.client) || '-') + '</td><td class="r">' + num(p.amount) + '</td><td>' + esc(p.note || '') + '</td><td><button class="btn sm danger" data-act="delPay" data-id="' + esc(p.id) + '">حذف</button></td></tr>').join('') + '</tbody></table></div>' : '<p class="mut">مفيش دفعات.</p>') + '</div>';
+    return h;
+  }
+  function clientForm() { openModal('عميل جديد', '<form class="form" data-form="client"><div class="g2"><label class="f">اسم العميل<input name="name" required></label><label class="f">التليفون<input name="phone" inputmode="tel"></label></div><div class="actions"><button class="btn primary" type="submit">حفظ</button><button class="btn" type="button" data-act="closeModal">إلغاء</button></div></form>'); }
+  function paymentForm(cid) {
+    openModal('تسجيل دفعة من عميل', '<form class="form" data-form="payment"><div class="g2"><label class="f">التاريخ<input type="date" name="date" value="' + todayISO() + '" required></label><label class="f">العميل<input name="client" list="cl2" value="' + esc(clientName(cid)) + '" required><datalist id="cl2">' + S.clients.map((c) => '<option value="' + esc(c.name) + '">').join('') + '</datalist></label></div><div class="g2"><label class="f">المبلغ (ج)<input name="amount" type="number" step="any" min="0" inputmode="decimal" required></label><label class="f">ملاحظة<input name="note"></label></div><div class="actions"><button class="btn primary" type="submit">حفظ</button><button class="btn" type="button" data-act="closeModal">إلغاء</button></div></form>');
+  }
+  function statement(cid) {
+    const C = computeAll(S.orders, S.expenses); const c = S.clients.find((x) => x.id === cid); if (!c) return;
+    const ev = [];
+    C.orders.filter((o) => o.client === cid && o.rev > 0).forEach((o) => ev.push({ d: o.date, t: 'أوردر: ' + (o.model || ''), dr: o.rev, cr: 0 }));
+    S.payments.filter((p) => p.client === cid).forEach((p) => ev.push({ d: p.date, t: 'دفعة' + (p.note ? ': ' + p.note : ''), dr: 0, cr: +p.amount || 0 }));
+    ev.sort((a, b) => String(a.d || '').localeCompare(String(b.d || ''))); let bal = 0;
+    openModal('كشف حساب: ' + c.name, '<div class="tw"><table style="min-width:460px"><thead><tr><th>التاريخ</th><th>البيان</th><th class="r">مستحق</th><th class="r">مدفوع</th><th class="r">الرصيد</th></tr></thead><tbody>' + (ev.length ? ev.map((e) => { bal += e.dr - e.cr; return '<tr><td>' + fdate(e.d) + '</td><td>' + esc(e.t) + '</td><td class="r">' + (e.dr ? num(e.dr) : '') + '</td><td class="r">' + (e.cr ? num(e.cr) : '') + '</td><td class="r">' + num(bal) + '</td></tr>'; }).join('') : '<tr><td colspan="5" class="mut">مفيش حركات.</td></tr>') + '</tbody></table></div>');
+  }
+
+  // ---------------------------------------------------------------- expenses
+  function vExpenses() {
+    const list = S.expenses.filter((e) => F.month === 'all' || String(e.date || '').slice(0, 7) === F.month).sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
+    let h = head(monthOptions() + '<button class="btn primary" data-act="newExpense">+ مصروف جديد</button>');
+    if (!list.length) return h + '<div class="card empty"><h3>مفيش مصاريف في الفترة دي</h3><p>سجّل الإيجار والكهرباء والمرتبات. هتتوزع تلقائي على قطع الشهر وتظهر في تكلفة القطعة.</p><button class="btn primary" data-act="newExpense">+ مصروف جديد</button></div>';
+    const tot = list.reduce((a, e) => a + (+e.amount || 0), 0); const cats = {}; list.forEach((e) => { const k = e.cat || 'أخرى'; cats[k] = (cats[k] || 0) + (+e.amount || 0); });
+    const cl = Object.keys(cats).map((k) => [k, cats[k]]).sort((a, b) => b[1] - a[1]);
+    h += '<div class="grid cols2"><div class="card"><h3>الإجمالي <span class="num">' + fmt(tot) + '</span> ج</h3><div class="bars">' + cl.map((c) => bar(c[0], c[1], cl[0][1], 'acc', fmt(c[1]) + ' (' + Math.round((c[1] / tot) * 100) + '%)')).join('') + '</div></div><div class="info">مصاريف الشهر بتتقسم على إجمالي القطع المسلّمة في نفس الشهر، فكل أوردر بيتحمّل نصيبه حسب عدد قطعه. لو الشهر فيه مصاريف ومفيش إنتاج، المصاريف دي بتظهر كخسارة في الرئيسية.</div></div>';
+    h += '<div class="tw" style="margin-top:14px"><table style="min-width:520px"><thead><tr><th>التاريخ</th><th>البند</th><th>البيان</th><th class="r">المبلغ</th><th></th></tr></thead><tbody>' + list.map((e) => '<tr><td>' + fdate(e.date) + '</td><td><span class="badge b-mute">' + esc(e.cat || 'أخرى') + '</span></td><td>' + esc(e.desc || '') + '</td><td class="r">' + num(e.amount) + '</td><td><button class="btn sm" data-act="editExpense" data-id="' + esc(e.id) + '">تعديل</button> <button class="btn sm danger" data-act="delExpense" data-id="' + esc(e.id) + '">حذف</button></td></tr>').join('') + '</tbody></table></div>';
+    return h;
+  }
+  function expenseForm(e) {
+    e = e || {}; const cats = EXP_CATS.slice(); if (e.cat && cats.indexOf(e.cat) < 0) cats.push(e.cat);
+    openModal(e.id ? 'تعديل مصروف' : 'مصروف جديد', '<form class="form" data-form="expense"><input type="hidden" name="id" value="' + esc(e.id || '') + '"><div class="g2"><label class="f">التاريخ<input type="date" name="date" value="' + esc(e.date || todayISO()) + '" required></label><label class="f">البند<select name="cat">' + cats.map((c) => '<option' + (c === (e.cat || 'إيجار') ? ' selected' : '') + '>' + esc(c) + '</option>').join('') + '</select></label></div><div class="g2"><label class="f">المبلغ (ج)<input name="amount" type="number" step="any" min="0" inputmode="decimal" value="' + esc(e.amount || '') + '" required></label><label class="f">البيان<input name="desc" value="' + esc(e.desc || '') + '"></label></div><div class="actions"><button class="btn primary" type="submit">حفظ</button><button class="btn" type="button" data-act="closeModal">إلغاء</button></div></form>');
+  }
+
+  // ---------------------------------------------------------------- currency
+  function vCurrency() {
+    const fx = computeFx(S.fx, S.rates);
+    let h = head('<button class="btn primary" data-act="newFx">+ حركة عملة</button>');
+    const curs = fx.list.map((x) => x.cur); CURS.forEach((c) => { if (curs.indexOf(c) < 0 && c === 'USD') curs.push(c); });
+    h += '<div class="card" style="margin-bottom:14px"><h3>سعر الصرف الحالي <span class="hint">بتدخله إنت لتقييم الرصيد</span></h3><div class="row">' + curs.map((c) => '<label class="f" style="width:150px">' + esc(c) + ' بالجنيه<input data-rate="' + esc(c) + '" type="number" step="any" min="0" inputmode="decimal" value="' + esc(S.rates[c] || '') + '"></label>').join('') + '</div></div>';
+    if (!fx.list.length) return h + '<div class="card empty"><h3>مفيش حركات عملة</h3><p>سجّل شراء أو بيع أو استلام دولار من عميل. المنظومة بتحسب الرصيد ومتوسط التكلفة وربح أو خسارة فرق الصرف.</p><button class="btn primary" data-act="newFx">+ حركة عملة</button></div>';
+    h += '<div class="grid kpis">' + fx.list.map((x) => '<div class="kpi acc"><div class="l">رصيد ' + esc(x.cur) + '</div><div class="v">' + num(x.bal) + '</div><div class="s">متوسط التكلفة ' + fmt(x.avg) + ' ج' + (x.rate ? ' • القيمة الآن ' + fmt(x.value) + ' ج' : '') + '</div><div class="s">ربح/خسارة محققة: ' + signed(x.realized) + ' ج' + (x.rate ? ' • غير محققة: ' + signed(x.unreal) + ' ج' : '') + '</div></div>').join('') + '</div>';
+    h += '<div class="tw"><table style="min-width:640px"><thead><tr><th>التاريخ</th><th>الحركة</th><th>العملة</th><th class="r">المبلغ</th><th class="r">السعر</th><th class="r">بالجنيه</th><th class="r">الرصيد بعدها</th><th class="r">ربح/خسارة الصرف</th><th></th></tr></thead><tbody>' + fx.rows.map((t) => '<tr><td>' + fdate(t.date) + '</td><td>' + esc(FX_LABEL[t.type] || t.type) + (t.note ? '<span class="mut"> • ' + esc(t.note) + '</span>' : '') + '</td><td>' + esc(t.cur) + '</td><td class="r">' + num(t.amount) + '</td><td class="r">' + num(t.rate) + '</td><td class="r">' + num((+t.amount || 0) * (+t.rate || 0)) + '</td><td class="r">' + num(t.balAfter) + '</td><td class="r">' + (FX_IN.indexOf(t.type) >= 0 ? '' : signed(t.gain)) + '</td><td><button class="btn sm danger" data-act="delFx" data-id="' + esc(t.id) + '">حذف</button></td></tr>').join('') + '</tbody></table></div>';
+    h += '<p class="mut" style="font-size:12.5px">طريقة الحساب: متوسط مرجّح للتكلفة. أي بيع أو دفع بيتحسب ربحه أو خسارته مقابل متوسط تكلفة الرصيد وقتها.</p>';
+    return h;
+  }
+  function fxForm() {
+    openModal('حركة عملة', '<form class="form" data-form="fx"><div class="g2"><label class="f">التاريخ<input type="date" name="date" value="' + todayISO() + '" required></label><label class="f">نوع الحركة<select name="type">' + Object.keys(FX_LABEL).map((k) => '<option value="' + k + '">' + FX_LABEL[k] + '</option>').join('') + '</select></label></div><div class="g3"><label class="f">العملة<input name="cur" list="curs" value="USD" required><datalist id="curs">' + CURS.map((c) => '<option value="' + c + '">').join('') + '</datalist></label><label class="f">المبلغ بالعملة<input name="amount" type="number" step="any" min="0" inputmode="decimal" required></label><label class="f">السعر بالجنيه<input name="rate" type="number" step="any" min="0" inputmode="decimal" required></label></div><label class="f">ملاحظة<input name="note"></label><div class="actions"><button class="btn primary" type="submit">حفظ</button><button class="btn" type="button" data-act="closeModal">إلغاء</button></div></form>');
+  }
+
+  // ---------------------------------------------------------------- Excel import
+  const IMPORT_TYPES = {
+    orders: { label: 'أوردرات الإنتاج', fields: [['date', 'التاريخ'], ['client', 'العميل'], ['model', 'الموديل / الصنف'], ['qty', 'الكمية المطلوبة'], ['done', 'الكمية المسلّمة'], ['rejected', 'المرفوض'], ['price', 'سعر تصنيع القطعة'], ['labor', 'تكلفة التشغيل للقطعة'], ['acc', 'إكسسوارات للقطعة'], ['extra', 'مصاريف إضافية للأوردر']], req: ['price'] },
+    expenses: { label: 'مصاريف المصنع', fields: [['date', 'التاريخ'], ['cat', 'البند'], ['desc', 'البيان'], ['amount', 'المبلغ']], req: ['amount'] },
+    payments: { label: 'دفعات العملاء', fields: [['date', 'التاريخ'], ['client', 'العميل'], ['amount', 'المبلغ'], ['note', 'ملاحظة']], req: ['amount'] },
+    fx: { label: 'حركات العملة', fields: [['date', 'التاريخ'], ['type', 'نوع الحركة'], ['cur', 'العملة'], ['amount', 'المبلغ'], ['rate', 'سعر الصرف'], ['note', 'ملاحظة']], req: ['amount'] }
+  };
+  const SYN = {
+    date: ['تاريخ', 'date', 'يوم'], client: ['عميل', 'زبون', 'client', 'customer', 'الجهه'], model: ['موديل', 'صنف', 'model', 'style', 'المنتج', 'بيان', 'الصنف'], qty: ['مطلوب', 'كميه', 'qty', 'quantity', 'عدد'], done: ['مسلم', 'تسليم', 'delivered', 'done', 'منتج', 'انتاج', 'كميه'], rejected: ['مرفوض', 'تالف', 'رفض', 'reject', 'defect'], price: ['سعرالتصنيع', 'سعرالقطعه', 'تصنيع', 'price', 'سعر'], labor: ['تشغيل', 'مصنعيه', 'عماله', 'labor', 'labour', 'اجر'], acc: ['اكسسوار', 'خيط', 'accessor'], extra: ['اضافي', 'اضافيه', 'نقل', 'extra', 'غسيل'],
+    cat: ['بند', 'تصنيف', 'category', 'فئه', 'نوع'], desc: ['بيان', 'وصف', 'تفاصيل', 'description', 'desc'], amount: ['مبلغ', 'قيمه', 'amount', 'اجمالي', 'value'], note: ['ملاحظ', 'note', 'بيان'], type: ['حركه', 'عمليه', 'type', 'نوع'], cur: ['عمله', 'currency', 'cur'], rate: ['صرف', 'rate', 'سعر']
+  };
+  const IM = { wb: null, name: '', sheet: '', rows: [], hdr: 0, type: 'orders', map: {}, step: 1, result: null };
+
+  function vImport() {
+    return head() + '<div id="impBody"></div>';
+  }
+  function afterImportRender() { renderImport(); }
+  function steps(n) { return '<div class="steps">' + ['١ اختيار الملف', '٢ مطابقة الأعمدة', '٣ نتيجة الاستيراد'].map((s, i) => '<span class="step' + (n === i + 1 ? ' on' : '') + '">' + s + '</span>').join('') + '</div>'; }
+  function renderImport() {
+    const b = $('#impBody'); if (!b) return;
+    if (IM.step === 1 || !IM.wb) {
+      b.innerHTML = steps(1) + '<div class="drop" id="drop"><div style="font-size:34px" aria-hidden="true">📄</div><b>ارفع ملف Excel بتاعك (xlsx أو xls أو csv)</b><span class="mut">الملف بيتقري على جهازك ومش بيتبعت لأي مكان. بعد كده تختار نوع البيانات وتطابق الأعمدة.</span><label class="btn primary" for="fileIn">اختيار ملف</label><input id="fileIn" type="file" accept=".xlsx,.xls,.xlsm,.csv" style="position:absolute;opacity:0;width:1px;height:1px"></div>' +
+        '<div class="info" style="margin-top:12px">الأنواع اللي تقدر تستوردها: أوردرات الإنتاج، مصاريف المصنع، دفعات العملاء، حركات العملة. لو الملف فيه أكتر من شيت، استورد كل شيت لوحده. الأعمدة بتتعرف تلقائي من أسماء العناوين بالعربي أو الإنجليزي.</div>';
+      const fi = $('#fileIn'); fi.onchange = () => { if (fi.files[0]) readFile(fi.files[0]); };
+      const dz = $('#drop'); ['dragenter', 'dragover'].forEach((ev) => dz.addEventListener(ev, (e) => { e.preventDefault(); dz.classList.add('over'); })); ['dragleave', 'drop'].forEach((ev) => dz.addEventListener(ev, (e) => { e.preventDefault(); dz.classList.remove('over'); }));
+      dz.addEventListener('drop', (e) => { const f = e.dataTransfer && e.dataTransfer.files[0]; if (f) readFile(f); });
+      return;
+    }
+    if (IM.step === 3) {
+      const r = IM.result || {};
+      b.innerHTML = steps(3) + '<div class="card"><h3>تم الاستيراد</h3><p>اتضاف <b>' + fmt(r.count) + '</b> سجل ' + esc(IMPORT_TYPES[IM.type].label) + (r.clients ? ' و <b>' + r.clients + '</b> عميل جديد' : '') + (r.skipped ? '، وتم تخطي ' + r.skipped + ' صف فاضي أو ناقص' : '') + '.</p><div class="row"><button class="btn primary" data-act="nav" data-r="dashboard">شوف التحليل</button><button class="btn" data-act="impAgain">استيراد شيت تاني</button></div></div>';
+      return;
+    }
+    // step 2
+    const t = IMPORT_TYPES[IM.type]; const hdrs = (IM.rows[IM.hdr] || []).map((x, i) => ({ i, name: String(x == null ? '' : x).trim() }));
+    const opt = (sel) => '<option value="">— مش موجود —</option>' + hdrs.map((h) => '<option value="' + h.i + '"' + (String(sel) === String(h.i) ? ' selected' : '') + '>' + esc(h.name || 'عمود ' + (h.i + 1)) + '</option>').join('');
+    const data = IM.rows.slice(IM.hdr + 1).filter((r) => r.some((c) => String(c == null ? '' : c).trim() !== ''));
+    const prev = data.slice(0, 6);
+    b.innerHTML = steps(2) + '<div class="card"><h3>' + esc(IM.name) + '</h3><div class="g3"><label class="f">الشيت<select id="imSheet">' + IM.wb.SheetNames.map((n) => '<option' + (n === IM.sheet ? ' selected' : '') + '>' + esc(n) + '</option>').join('') + '</select></label><label class="f">نوع البيانات<select id="imType">' + Object.keys(IMPORT_TYPES).map((k) => '<option value="' + k + '"' + (k === IM.type ? ' selected' : '') + '>' + esc(IMPORT_TYPES[k].label) + '</option>').join('') + '</select></label><label class="f">رقم صف العناوين<input id="imHdr" type="number" min="1" value="' + (IM.hdr + 1) + '"></label></div></div>' +
+      '<div class="card" style="margin-top:14px"><h3>مطابقة الأعمدة <span class="hint">اتحددت تلقائي، عدّل لو محتاج</span></h3><div class="g2">' + t.fields.map((f) => '<label class="f">' + esc(f[1]) + (t.req.indexOf(f[0]) >= 0 ? ' *' : '') + '<select data-map="' + f[0] + '">' + opt(IM.map[f[0]]) + '</select></label>').join('') + '</div></div>' +
+      '<div class="card" style="margin-top:14px"><h3>معاينة وتحليل سريع للملف <span class="hint">' + data.length + ' صف</span></h3>' + quickStats(hdrs, data) + '<div class="tw" style="margin-top:10px"><table style="min-width:480px"><thead><tr>' + hdrs.map((h) => '<th>' + esc(h.name || 'عمود ' + (h.i + 1)) + '</th>').join('') + '</tr></thead><tbody>' + prev.map((r) => '<tr>' + hdrs.map((h) => '<td>' + esc(cellText(r[h.i])) + '</td>').join('') + '</tr>').join('') + '</tbody></table></div></div>' +
+      '<div class="card" style="margin-top:14px"><div id="impMsg" class="note" style="display:none;margin-bottom:10px"></div><div class="prog" id="progbar" style="display:none"><i id="progfill"></i></div><div class="mut" id="progtext" style="font-size:12px;margin-bottom:8px"></div><div class="row"><button class="btn primary" id="doImport">استيراد ' + data.length + ' صف</button><button class="btn" data-act="impAgain">رجوع</button></div></div>';
+    $('#imSheet').onchange = (e) => { setSheet(e.target.value); renderImport(); };
+    $('#imType').onchange = (e) => { IM.type = e.target.value; guessMap(); renderImport(); };
+    $('#imHdr').onchange = (e) => { IM.hdr = Math.max(0, (parseInt(e.target.value, 10) || 1) - 1); guessMap(); renderImport(); };
+    $$('select[data-map]', b).forEach((s) => { s.onchange = () => { IM.map[s.dataset.map] = s.value; }; });
+    $('#doImport').onclick = runImport;
+  }
+  function cellText(v) { if (v instanceof Date) return todayFromDate(v); return v == null ? '' : String(v); }
+  function quickStats(hdrs, data) {
+    const out = [];
+    hdrs.forEach((h) => { const vals = data.map((r) => r[h.i]).filter((v) => typeof v === 'number' && isFinite(v)); if (vals.length >= Math.max(2, data.length * 0.6)) { const sum = vals.reduce((a, b) => a + b, 0); out.push('<div class="kpi"><div class="l">' + esc(h.name || 'عمود ' + (h.i + 1)) + '</div><div class="v" style="font-size:19px">' + num(sum) + '</div><div class="s">متوسط ' + fmt(sum / vals.length) + ' • أقل ' + fmt(Math.min.apply(null, vals)) + ' • أعلى ' + fmt(Math.max.apply(null, vals)) + '</div></div>'); } });
+    return out.length ? '<div class="grid kpis" style="margin-bottom:0">' + out.slice(0, 6).join('') + '</div>' : '<p class="mut" style="margin:0">مفيش أعمدة أرقام واضحة في الشيت ده.</p>';
+  }
+  async function readFile(file) {
+    if (typeof XLSX === 'undefined') { toast('مكتبة قراءة Excel لم تتحمّل. تأكد من الإنترنت وحدّث الصفحة.'); return; }
+    try {
+      const buf = await file.arrayBuffer(); IM.wb = XLSX.read(buf, { type: 'array', cellDates: true }); IM.name = file.name;
+      const pick = IM.wb.SheetNames.find((n) => (XLSX.utils.sheet_to_json(IM.wb.Sheets[n], { header: 1 }).length > 1)) || IM.wb.SheetNames[0];
+      setSheet(pick); IM.step = 2; renderImport();
+    } catch (e) { toast('مقدرتش أقرأ الملف ده. تأكد إنه Excel سليم.'); }
+  }
+  function setSheet(name) {
+    IM.sheet = name; IM.rows = XLSX.utils.sheet_to_json(IM.wb.Sheets[name], { header: 1, raw: true, defval: '' });
+    IM.hdr = detectHeader(IM.rows); const n = normAr(name);
+    if (/مصروف|مصاريف|expense/.test(n)) IM.type = 'expenses'; else if (/دفع|تحصيل|payment|ايداع/.test(n)) IM.type = 'payments'; else if (/عمل|دولار|usd|fx|صرف/.test(n)) IM.type = 'fx'; else if (/اوردر|انتاج|order|تصنيع/.test(n)) IM.type = 'orders';
+    guessMap();
+  }
+  function detectHeader(rows) {
+    for (let i = 0; i < Math.min(rows.length, 15); i++) { const r = rows[i] || []; const filled = r.filter((c) => String(c == null ? '' : c).trim() !== ''); const strs = filled.filter((c) => typeof c === 'string'); if (filled.length >= 2 && strs.length >= filled.length * 0.7) return i; }
+    return 0;
+  }
+  function guessMap() {
+    const hdrs = (IM.rows[IM.hdr] || []).map((x) => normAr(x)); const used = {}; IM.map = {};
+    IMPORT_TYPES[IM.type].fields.forEach((f) => {
+      const syn = (SYN[f[0]] || []).map(normAr); let found = -1;
+      for (const s of syn) { const idx = hdrs.findIndex((h, i) => !used[i] && h && h.indexOf(s) >= 0); if (idx >= 0) { found = idx; break; } }
+      if (found >= 0) { used[found] = 1; IM.map[f[0]] = String(found); }
+    });
+  }
+  function toNum(v) { if (typeof v === 'number') return isFinite(v) ? v : 0; if (v == null) return 0; const s = arDigits(String(v)).replace(/[,٬\s]/g, '').replace(/٫/g, '.').replace(/[^\d.\-]/g, ''); const n = parseFloat(s); return isFinite(n) ? n : 0; }
+  function todayFromDate(d) { const x = new Date(d.getTime() + 12 * 3600 * 1000); return x.getUTCFullYear() + '-' + pad(x.getUTCMonth() + 1) + '-' + pad(x.getUTCDate()); }
+  function toDate(v) {
+    if (v instanceof Date && !isNaN(v)) return todayFromDate(v);
+    if (typeof v === 'number' && v > 20000 && v < 80000) return todayFromDate(new Date(Math.round((v - 25569) * 86400 * 1000)));
+    const s = arDigits(String(v == null ? '' : v)).trim(); let m;
+    if ((m = s.match(/^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})/))) return m[1] + '-' + pad(+m[2]) + '-' + pad(+m[3]);
+    if ((m = s.match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2,4})/))) { let y = +m[3]; if (y < 100) y += 2000; return y + '-' + pad(+m[2]) + '-' + pad(+m[1]); }
+    return todayISO();
+  }
+  function toFxType(v) { const s = normAr(v); if (/بيع|sell|sale/.test(s)) return 'sell'; if (/استلام|تحصيل|receive|وارد|ايداع/.test(s)) return 'receive'; if (/دفع|سداد|pay|صادر|تحويل|سحب/.test(s)) return 'pay'; return 'buy'; }
+  function toCur(v) { const s = normAr(v); if (!s) return 'USD'; if (/دولار|usd|\$/.test(s)) return 'USD'; if (/يورو|eur/.test(s)) return 'EUR'; if (/ريال|sar/.test(s)) return 'SAR'; if (/درهم|aed/.test(s)) return 'AED'; if (/استرليني|gbp|جنيهاسترليني/.test(s)) return 'GBP'; return String(v).trim().toUpperCase().slice(0, 4); }
+
+  async function runImport() {
+    const t = IMPORT_TYPES[IM.type]; const msg = $('#impMsg'); msg.style.display = 'none';
+    const miss = t.req.filter((k) => !IM.map[k]);
+    if (miss.length) { msg.textContent = 'لازم تحدد عمود: ' + miss.map((k) => t.fields.find((f) => f[0] === k)[1]).join('، '); msg.style.display = 'block'; return; }
+    const data = IM.rows.slice(IM.hdr + 1).filter((r) => r.some((c) => String(c == null ? '' : c).trim() !== ''));
+    const val = (r, k) => (IM.map[k] === undefined || IM.map[k] === '' ? undefined : r[+IM.map[k]]);
+    const btn = $('#doImport'); btn.disabled = true; $('#progbar').style.display = 'block';
+    const recs = []; let skipped = 0; const newClients = {}; const cmap = {};
+    S.clients.forEach((c) => { cmap[normAr(c.name)] = c.id; });
+    const clientId = (name) => { name = String(name == null ? '' : name).trim(); if (!name) return ''; const k = normAr(name); if (!cmap[k]) { const c = { id: uid(), name, ts: Date.now() }; cmap[k] = c.id; newClients[c.id] = c; } return cmap[k]; };
+    data.forEach((r) => {
+      if (IM.type === 'orders') {
+        const price = toNum(val(r, 'price')); const qty = toNum(val(r, 'qty')); let done = toNum(val(r, 'done')); if (!price && !qty && !done) { skipped++; return; }
+        if (IM.map.done === undefined && qty) done = qty; const labor = toNum(val(r, 'labor'));
+        recs.push(['orders', { id: uid(), date: toDate(val(r, 'date')), client: clientId(val(r, 'client')), model: String(val(r, 'model') == null ? '' : val(r, 'model')).trim(), qty, done, rejected: toNum(val(r, 'rejected')), price, ops: labor ? [{ name: 'تشغيل', rate: labor }] : [], acc: toNum(val(r, 'acc')), extra: toNum(val(r, 'extra')), notes: 'مستورد من ' + IM.name }]);
+      } else if (IM.type === 'expenses') {
+        const a = toNum(val(r, 'amount')); if (!a) { skipped++; return; }
+        recs.push(['expenses', { id: uid(), date: toDate(val(r, 'date')), cat: String(val(r, 'cat') || 'أخرى').trim() || 'أخرى', desc: String(val(r, 'desc') == null ? '' : val(r, 'desc')).trim(), amount: a }]);
+      } else if (IM.type === 'payments') {
+        const a = toNum(val(r, 'amount')); if (!a) { skipped++; return; }
+        recs.push(['payments', { id: uid(), date: toDate(val(r, 'date')), client: clientId(val(r, 'client')), amount: a, note: String(val(r, 'note') == null ? '' : val(r, 'note')).trim() }]);
+      } else {
+        const a = toNum(val(r, 'amount')); if (!a) { skipped++; return; }
+        recs.push(['fx', { id: uid(), date: toDate(val(r, 'date')), type: toFxType(val(r, 'type')), cur: toCur(val(r, 'cur')), amount: Math.abs(a), rate: toNum(val(r, 'rate')), note: String(val(r, 'note') == null ? '' : val(r, 'note')).trim() }]);
+      }
+    });
+    const ncl = Object.keys(newClients).map((k) => newClients[k]); const total = ncl.length + recs.length; let n = 0;
+    IM.busy = true;
+    try {
+      for (const c of ncl) { await put('clients', c); progress(++n, total); }
+      for (const r of recs) { await put(r[0], r[1]); progress(++n, total); }
+      IM.result = { count: recs.length, clients: ncl.length, skipped }; IM.step = 3; IM.busy = false; render();
+    } catch (e) { IM.busy = false; btn.disabled = false; msg.textContent = 'الاستيراد وقف بعد ' + n + ' سجل. اللي اتضاف اتحفظ، وتقدر تكمل بعد ما تراجع الصلاحيات.'; msg.style.display = 'block'; }
+  }
+
+  // ---------------------------------------------------------------- settings, backup, sample data
+  function vConfig() {
+    const n = COLS.reduce((a, c) => a + S[c].length, 0); const demo = COLS.reduce((a, c) => a + S[c].filter((x) => x.demo).length, 0);
+    let localHas = false; try { const j = JSON.parse(localStorage.getItem(LS_KEY) || 'null'); localHas = !!(j && COLS.some((c) => (j[c] || []).length)); } catch (e) { localHas = false; }
+    return head() + '<div class="grid cols2"><div class="card"><h3>حالة المزامنة</h3><p style="margin-top:0">' + (store.mode === 'cloud' ? '<span class="badge b-good">متزامن</span> البيانات متخزنة في حساب الصفحة وبتظهر لأي حد عنده صلاحية. لإضافة والدك: شارك الصفحة معاه بصلاحية "Contributor" (يقدر يعدّل) من زر المشاركة.' : store.mode === 'firebase' ? '<span class="badge ' + (store.online ? 'b-good' : 'b-warn') + '">Firebase</span> البيانات بتتزامن تلقائي بين كل الأجهزة المتصلة بنفس القاعدة وكلمة السر.' : '<span class="badge b-warn">على الجهاز فقط</span> الصفحة مش مشاركة دلوقتي، فالبيانات بتتحفظ في متصفح الجهاز ده بس. لما تشارك الصفحة وتفتحها تاني هتتزامن.') + '</p><p class="mut" style="margin-bottom:0">عدد السجلات: <b class="num">' + n + '</b>' + (store.error ? ' • خطأ اتصال: ' + esc(store.error) : '') + '</p>' + (isRemote() && localHas ? '<div class="row" style="margin-top:10px"><button class="btn" data-act="pushLocal">رفع بيانات الجهاز للمزامنة</button></div><div class="prog" style="margin-top:8px"><i id="progfill"></i></div><div class="mut" id="progtext" style="font-size:12px"></div>' : '') + '</div>' +
+      '<div class="card"><h3>بيانات تجريبية</h3><p style="margin-top:0" class="mut">جرّب المنظومة ببيانات وهمية، وبعدين امسحها بضغطة من غير ما تأثر على بياناتك الحقيقية.</p><div class="row"><button class="btn" data-act="sample">تحميل بيانات تجريبية</button><button class="btn danger" data-act="delDemo"' + (demo ? '' : ' disabled') + '>مسح التجريبية (' + demo + ')</button></div></div></div>' +
+      fbCard() + '<div class="card" style="margin-top:14px"><h3>نسخة احتياطية</h3><div class="row"><button class="btn" data-act="backup">نسخ البيانات (JSON)</button><button class="btn" data-act="restoreForm">استرجاع من نسخة</button></div><p class="mut" style="margin-bottom:0;font-size:12.5px">خد نسخة احتياطية من وقت لوقت وخزّنها في مكان آمن.</p></div>' +
+      '<div class="card" style="margin-top:14px"><h3>منطقة الخطر</h3><button class="btn danger" data-act="wipe">مسح كل البيانات</button></div>';
+  }
+  async function loadSample() {
+    const base = new Date(); const ym = (k) => { const d = new Date(base.getFullYear(), base.getMonth() - k, 1); return d.getFullYear() + '-' + pad(d.getMonth() + 1); };
+    const cl = [['شركة النيل للملابس', '0100000001'], ['مؤسسة الأمل', '0100000002'], ['براند ستايل', '0100000003']].map((x) => ({ id: uid(), name: x[0], phone: x[1], demo: true }));
+    const ops = (a, b, c, d) => [{ name: 'قص', rate: a }, { name: 'خياطة', rate: b }, { name: 'كي', rate: c }, { name: 'تغليف', rate: d }];
+    const orders = []; [[2, 0, 'تيشرت بولو', 1500, 1500, 38, ops(3, 14, 2, 1), 1.5], [2, 1, 'بنطلون جينز', 800, 790, 70, ops(4, 28, 3, 1.5), 3], [1, 0, 'قميص رجالي', 1000, 1000, 52, ops(3.5, 20, 2.5, 1.5), 2], [1, 2, 'جاكيت', 400, 400, 85, ops(6, 42, 4, 2), 6], [0, 1, 'تيشرت أطفال', 2000, 1200, 24, ops(2, 10, 1.5, 1), 1]].forEach((x, i) => { orders.push({ id: uid(), date: ym(x[0]) + '-' + pad(8 + i * 3), client: cl[x[1]].id, model: x[2], qty: x[3], done: x[4], rejected: i === 1 ? 20 : 0, price: x[5], ops: x[6], acc: x[7], extra: 0, demo: true }); });
+    const exps = []; [2, 1, 0].forEach((k) => { [['إيجار', 30000], ['كهرباء', 9000 + k * 700], ['مياه وغاز', 2500], ['مرتبات إدارية وثابتة', 28000], ['صيانة ماكينات', 4000]].forEach((e) => exps.push({ id: uid(), date: ym(k) + '-01', cat: e[0], desc: '', amount: e[1], demo: true })); });
+    const pays = [{ id: uid(), date: ym(1) + '-20', client: cl[0].id, amount: 40000, note: 'دفعة أولى', demo: true }, { id: uid(), date: ym(0) + '-05', client: cl[2].id, amount: 20000, note: '', demo: true }];
+    const fx = [{ id: uid(), date: ym(2) + '-05', type: 'buy', cur: 'USD', amount: 2000, rate: 48.5, note: 'شراء', demo: true }, { id: uid(), date: ym(1) + '-12', type: 'receive', cur: 'USD', amount: 1000, rate: 49.2, note: 'من عميل', demo: true }, { id: uid(), date: ym(0) + '-03', type: 'sell', cur: 'USD', amount: 1500, rate: 50.4, note: 'بيع', demo: true }];
+    const all = [].concat(cl.map((x) => ['clients', x]), orders.map((x) => ['orders', x]), exps.map((x) => ['expenses', x]), pays.map((x) => ['payments', x]), fx.map((x) => ['fx', x]));
+    for (const a of all) await put(a[0], a[1]);
+    toast('اتحملت بيانات تجريبية');
+  }
+  async function delDemo() { for (const c of COLS) for (const x of S[c].filter((y) => y.demo)) await del(c, x.id); toast('اتمسحت البيانات التجريبية'); }
+  async function wipe() { for (const c of COLS) for (const x of S[c].slice()) await del(c, x.id); S.rates = {}; await putRates(); toast('اتمسحت كل البيانات'); }
+
+  // ---------------------------------------------------------------- events
+  document.addEventListener('click', async (e) => {
+    const t = e.target.closest('[data-act]'); if (!t) return; const a = t.dataset.act, id = t.dataset.id;
+    try {
+      switch (a) {
+        case 'nav': route = t.dataset.r; location.hash = route; window.scrollTo(0, 0); render(); break;
+        case 'closeModal': closeModal(); break;
+        case 'newOrder': orderForm(); break;
+        case 'editOrder': closeModal(); orderForm(S.orders.find((x) => x.id === id)); break;
+        case 'viewOrder': viewOrder(id); break;
+        case 'delOrder': confirmBox('تمسح الأوردر ده؟', async () => { await del('orders', id); toast('اتمسح'); }); break;
+        case 'addOp': $('#opsRows').insertAdjacentHTML('beforeend', opRow('', '')); break;
+        case 'rmOp': t.closest('.oprow').remove(); updatePreview($('form[data-form=order]')); break;
+        case 'copyOrders': copyOrders(); break;
+        case 'newClient': clientForm(); break;
+        case 'newPayment': paymentForm(id); break;
+        case 'stmt': statement(id); break;
+        case 'delPay': confirmBox('تمسح الدفعة دي؟', async () => { await del('payments', id); }); break;
+        case 'newExpense': expenseForm(); break;
+        case 'editExpense': expenseForm(S.expenses.find((x) => x.id === id)); break;
+        case 'delExpense': confirmBox('تمسح المصروف ده؟', async () => { await del('expenses', id); }); break;
+        case 'newFx': fxForm(); break;
+        case 'delFx': confirmBox('تمسح الحركة دي؟', async () => { await del('fx', id); }); break;
+        case 'impAgain': IM.step = 1; IM.wb = null; renderImport(); break;
+        case 'sample': await loadSample(); break;
+        case 'delDemo': confirmBox('تمسح كل البيانات التجريبية؟', delDemo); break;
+        case 'wipe': confirmBox('ده هيمسح كل البيانات نهائياً. متأكد؟', wipe); break;
+        case 'pushLocal': await pushLocalToCloud(); break;
+        case 'fbDisconnect': confirmBox('تفصل المزامنة من الجهاز ده؟ البيانات هتفضل على Firebase.', async () => { disconnectFirebase(); }); break;
+        case 'copyLink': if (location.protocol === 'file:') { toast('الصفحة لازم تتحمّل من لينك على الإنترنت الأول (استضافة). شوف الخطوات اللي بعتهالك.'); } else copyText(shareLink(), 'اتنسخ الرابط. ابعته لباباك على واتساب.'); break;
+        case 'copyRules': copyText(FB_RULES, 'اتنسخت القواعد'); break;
+        case 'backup': copyText(JSON.stringify({ clients: S.clients, orders: S.orders, expenses: S.expenses, payments: S.payments, fx: S.fx, rates: S.rates }), 'اتنسخت النسخة الاحتياطية. الصقها في ملف نصي واحفظها.'); break;
+        case 'restoreForm': openModal('استرجاع نسخة احتياطية', '<form class="form" data-form="restore"><label class="f">الصق نص النسخة هنا<textarea name="json" required></textarea></label><div class="note">الاسترجاع بيضيف السجلات على الموجودة (مش بيمسح حاجة).</div><div class="actions"><button class="btn primary" type="submit">استرجاع</button><button class="btn" type="button" data-act="closeModal">إلغاء</button></div></form>'); break;
+        default: break;
+      }
+    } catch (err) { /* write errors already toasted */ }
+  });
+  document.addEventListener('submit', async (e) => {
+    const f = e.target.closest('form[data-form]'); if (!f) return; e.preventDefault(); const k = f.dataset.form; const g = (n) => (f.elements[n] ? f.elements[n].value : '');
+    const btn = $('button[type=submit]', f); if (btn) btn.disabled = true;
+    try {
+      if (k === 'order') await saveOrder(f);
+      else if (k === 'client') { await put('clients', { id: uid(), name: g('name').trim(), phone: g('phone').trim() }); closeModal(); }
+      else if (k === 'payment') { const cid = await findOrCreateClient(g('client')); await put('payments', { id: uid(), date: g('date'), client: cid, amount: parseFloat(g('amount')) || 0, note: g('note').trim() }); closeModal(); toast('اتسجلت الدفعة'); }
+      else if (k === 'expense') { const old = S.expenses.find((x) => x.id === g('id')); await put('expenses', Object.assign({}, old || {}, { id: g('id') || uid(), date: g('date'), cat: g('cat'), desc: g('desc').trim(), amount: parseFloat(g('amount')) || 0 })); closeModal(); toast('اتحفظ'); }
+      else if (k === 'fx') { await put('fx', { id: uid(), date: g('date'), type: g('type'), cur: g('cur').trim().toUpperCase(), amount: parseFloat(g('amount')) || 0, rate: parseFloat(g('rate')) || 0, note: g('note').trim() }); closeModal(); toast('اتسجلت الحركة'); }
+      else if (k === 'fb') { await connectFirebase(g('url'), g('key')); if (btn) btn.disabled = false; }
+      else if (k === 'restore') {
+        const j = JSON.parse(g('json')); let n = 0;
+        for (const c of COLS) for (const o of (j[c] || [])) { await put(c, o); n++; }
+        if (j.rates) { S.rates = Object.assign({}, S.rates, j.rates); await putRates(); }
+        closeModal(); toast('اترجّع ' + n + ' سجل');
+      }
+    } catch (err) { if (btn) btn.disabled = false; if (k === 'restore') toast('النص مش نسخة صحيحة.'); }
+  });
+  document.addEventListener('input', (e) => {
+    const f = e.target.closest('form[data-form=order]'); if (f) updatePreview(f);
+    if (e.target.id === 'qBox') { F.q = e.target.value; document.body.dataset.refocus = '1'; schedule(); }
+  });
+  document.addEventListener('change', async (e) => {
+    if (e.target.id === 'monthSel') { F.month = e.target.value; render(); }
+    const r = e.target.dataset && e.target.dataset.rate; if (r) { const v = parseFloat(e.target.value); if (v > 0) S.rates[r] = v; else delete S.rates[r]; await putRates(); if (isRemote()) schedule(); }
+  });
+  window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+  window.addEventListener('hashchange', () => { const h = location.hash.replace('#', ''); if (TITLES[h] && h !== route) { route = h; render(); } });
+
+  // test hook for pure functions (no effect in the page)
+  window.__francia = { S, store, put, del, startFirebase, fbApply, encCfg, readCfgFromHash, computeAll, computeFx, toNum, toDate, toFxType, toCur, normAr, detectHeader };
+
+  // ---------------------------------------------------------------- start
+  { const h = location.hash.replace('#', ''); if (TITLES[h]) route = h; }
+  initStore();
+})();
+
+</script>
+</body>
+</html>
